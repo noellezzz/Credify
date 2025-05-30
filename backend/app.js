@@ -3,11 +3,16 @@ import cors from "cors";
 import morgan from "morgan";
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
+import ocrRoutes from "./routes/ocr.routes.js";
+
 const app = express();
+
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "15mb" })); // large payload for base64
 app.use(morgan("dev"));
+
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/ocr", ocrRoutes);
 
 export default app;

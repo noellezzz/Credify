@@ -1,3 +1,4 @@
+// App.js
 import React from "react";
 import "./App.css";
 import { Routes, Route } from "react-router-dom";
@@ -7,6 +8,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard/Index";
 import SideLayout from "./components/layouts/Side";
+import CertificateUpload from "./pages/CertificateUpload"; // Add this import
 
 const App = () => {
   return (
@@ -19,6 +21,8 @@ const App = () => {
       <Route path="/register" element={<Register />} />
       <Route path="/admin" element={<SideLayout />}>
         <Route index element={<Dashboard />} />
+        {/* Add this new route for OCR */}
+        <Route path="certificates" element={<CertificateUpload />} />
       </Route>
     </Routes>
   );

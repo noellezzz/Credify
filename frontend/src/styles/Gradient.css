@@ -1,0 +1,23 @@
+@keyframes gradient-animation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+#gradient-canvas {
+  --gradient-color-1: #fafbf9;
+  --gradient-color-2: #4a5d23;
+  --gradient-color-3: #f0f2ee;
+  --gradient-color-4: #a8b4a5;
+
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 105%;
+}

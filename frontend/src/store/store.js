@@ -1,6 +1,6 @@
-// src/store.js
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import userReducer from "../features/user/userSlice";
+import ocrReducer from "../features/OCR/ocrSlice";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import {
@@ -14,12 +14,13 @@ import {
 
 const rootReducer = combineReducers({
   user: userReducer,
+  ocr: ocrReducer,
 });
 
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["user"],
+  whitelist: ["user"], // persist only user slice, add ocr if needed
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

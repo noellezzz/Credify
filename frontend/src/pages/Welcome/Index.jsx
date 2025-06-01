@@ -8,6 +8,7 @@ import {
 } from "../../features/user/userSelector";
 import { clearUser } from "../../features/user/userSlice";
 import Logo from "../../assets/Credify.png";
+import Header from "../../components/layouts/Header";
 
 const Index = () => {
   const [activeCard, setActiveCard] = useState(null);
@@ -25,29 +26,6 @@ const Index = () => {
   useEffect(() => {
     setIsVisible(true);
   }, []);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      
-      if (currentScrollY < 10) {
-        // Always show navbar at the top
-        setIsNavbarVisible(true);
-      } else if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        // Scrolling down and past 100px
-        setIsNavbarVisible(false);
-        setIsMobileMenuOpen(false); // Close mobile menu when hiding navbar
-      } else if (currentScrollY < lastScrollY) {
-        // Scrolling up
-        setIsNavbarVisible(true);
-      }
-      
-      setLastScrollY(currentScrollY);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY]);
 
   const handleLogout = () => {
     dispatch(clearUser());
@@ -143,9 +121,11 @@ const Index = () => {
   ];
 
   return (
-    <div className="bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen pt-20">
+    <>
+    <Header />
+    <div className="bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen pt-16">
       {/* Hero Section */}
-      <div className="relative bg-gradient-to-br from-blue-600 via-purple-600 to-blue-800">
+      <div className="relative bg-gradient-to-br from-blue-600 via-purple-600 to-blue-800 pt-10">
         <div className="absolute inset-0 bg-black opacity-20 z-[1]"></div>
         <div className="absolute inset-0 z-[0] overflow-hidden">
           <div className="absolute top-10 left-10 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
@@ -281,6 +261,7 @@ const Index = () => {
         }
       `}</style>
     </div>
+    </>
   );
 };
 

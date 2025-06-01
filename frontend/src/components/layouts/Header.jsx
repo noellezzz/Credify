@@ -17,30 +17,6 @@ const Header = () => {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNavbarVisible, setIsNavbarVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      
-      if (currentScrollY < 50) {
-        // Always show navbar when near the top
-        setIsNavbarVisible(true);
-      } else if (currentScrollY > lastScrollY && currentScrollY > 150) {
-        // Scrolling down and past 150px
-        setIsNavbarVisible(false);
-        setIsMobileMenuOpen(false); // Close mobile menu when hiding navbar
-      } else if (currentScrollY < lastScrollY - 10) {
-        // Scrolling up with some threshold
-        setIsNavbarVisible(true);
-      }
-      
-      setLastScrollY(currentScrollY);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY]);
 
   const handleLogout = () => {
     dispatch(clearUser());
@@ -58,7 +34,7 @@ const Header = () => {
   const isActivePage = (path) => location.pathname === path;
 
   return (
-    <div className={`fixed w-full z-[100] bg-[var(--secondary-color)] px-4 sm:px-6 lg:px-8 py-3 lg:py-4 mt-12 transition-transform duration-300 ease-in-out ${
+    <div className={`fixed w-full z-[100] bg-[var(--secondary-color)] px-4 sm:px-6 lg:px-8 py-3 lg:py-4 transition-transform duration-300 ease-in-out ${
       isNavbarVisible ? 'translate-y-0' : '-translate-y-full'
     }`}>
       {/* Desktop Layout */}
@@ -116,7 +92,7 @@ const Header = () => {
                   Hi, {user?.name?.split(' ')[0] || 'User'}
                 </span>
               </div>
-              
+
               <button
                 onClick={handleLogout}
                 className="group relative overflow-hidden bg-transparent border border-[var(--tertiary-color)] text-[var(--tertiary-color)] px-4 py-2 rounded-lg hover:text-[var(--secondary-color)] transition-all duration-300 font-medium text-sm xl:text-base"

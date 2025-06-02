@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { uploadCertificateBase64, clearStatus } from "../features/OCR/ocrSlice";
+import { uploadCertificateBase64, clearStatus } from "../features/certificates/certificatesSlice";
 import {
   selectIsLoading,
   selectError,
   selectSuccessMessage,
   selectUploadedImageUrl,
-} from "../features/OCR/ocrSelector";
+} from "../features/certificates/certificatesSelector";
 
 const CertificateUpload = () => {
   const dispatch = useDispatch();

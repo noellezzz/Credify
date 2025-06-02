@@ -1,6 +1,6 @@
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import userReducer from "../features/user/userSlice";
-import ocrReducer from "../features/OCR/ocrSlice";
+import certicatesReducer from "../features/certificates/certificatesSlice";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import {
@@ -14,7 +14,7 @@ import {
 
 const rootReducer = combineReducers({
   user: userReducer,
-  ocr: ocrReducer,
+  certificates: certicatesReducer,
 });
 
 const persistConfig = {

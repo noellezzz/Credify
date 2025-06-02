@@ -1,6 +1,7 @@
 import { InferenceClient } from "@huggingface/inference";
 import { supabaseAdmin } from "../services/supabase.service.js";
 import cloudinary from "cloudinary";
+import crypto from "crypto";
 
 const client = new InferenceClient(process.env.HF_TOKEN);
 
@@ -34,7 +35,7 @@ export const uploadBase64 = async (req, res) => {
 
     // Determine file type from base64 data
     const mimeType = fileData.match(/^data:([A-Za-z-+/]+);base64,/)?.[1];
-    const isPdf = mimeType === 'application/pdf';
+    const isPdf = mimeType === "application/pdf";
 
     // Upload to Cloudinary
     const cloudinaryUpload = await cloudinary.v2.uploader.upload(fileData, {
@@ -56,9 +57,9 @@ export const uploadBase64 = async (req, res) => {
     if (isPdf) {
       // Convert PDF to image using Cloudinary transformation
       ocrImageUrl = cloudinary.v2.url(cloudinaryUpload.public_id, {
-        format: 'jpg',
+        format: "jpg",
         page: 1, // First page
-        resource_type: 'image'
+        resource_type: "image",
       });
     }
 
@@ -71,7 +72,7 @@ export const uploadBase64 = async (req, res) => {
           certificate_name: fileName,
           user_id: userId || null,
           image_url: imageUrl,
-          file_type: isPdf ? 'pdf' : 'image',
+          file_type: isPdf ? "pdf" : "image",
           created_at: new Date().toISOString(),
         },
       ])
@@ -95,7 +96,9 @@ export const uploadBase64 = async (req, res) => {
           content: [
             {
               type: "text",
-              text: `Extract and return only the text content from this ${isPdf ? 'PDF document' : 'image'}. Return the text as plain text without any formatting, JSON structure, or additional commentary. Just the raw text content.`,
+              text: `Extract and return only the text content from this ${
+                isPdf ? "PDF document" : "image"
+              }. Return the text as plain text without any formatting, JSON structure, or additional commentary. Just the raw text content.`,
             },
             {
               type: "image_url",
@@ -121,13 +124,16 @@ export const uploadBase64 = async (req, res) => {
     }
 
     // Generate both hashes
-    const crypto = await import('crypto');
-    
+    const crypto = await import("crypto");
+
     // File hash (hash of the actual file buffer)
-    const fileHash = crypto.createHash('sha256').update(buffer).digest('hex');
-    
+    const fileHash = crypto.createHash("sha256").update(buffer).digest("hex");
+
     // Content hash (hash of OCR extracted content)
-    const contentHash = crypto.createHash('sha256').update(ocrContent, 'utf8').digest('hex');
+    const contentHash = crypto
+      .createHash("sha256")
+      .update(ocrContent, "utf8")
+      .digest("hex");
 
     // Store both hashes in the hash table
     const { data: hashRecord, error: hashInsertError } = await supabaseAdmin
@@ -158,13 +164,12 @@ export const uploadBase64 = async (req, res) => {
       message: "File uploaded, processed, and hashes generated successfully",
       certificateId: certificate.id,
       imageUrl,
-      fileType: isPdf ? 'pdf' : 'image',
+      fileType: isPdf ? "pdf" : "image",
       fileHash,
       contentHash,
       ocrContent,
       hashId: hashRecord?.id,
     });
-
   } catch (error) {
     console.error("uploadBase64 error:", error);
     return res.status(500).json({ error: "Internal server error" });
@@ -176,8 +181,8 @@ export const getOcrContent = async (req, res) => {
     const { certificateId } = req.params;
 
     if (!certificateId) {
-      return res.status(400).json({ 
-        error: "Certificate ID is required" 
+      return res.status(400).json({
+        error: "Certificate ID is required",
       });
     }
 
@@ -189,8 +194,8 @@ export const getOcrContent = async (req, res) => {
       .single();
 
     if (fetchError || !certificate) {
-      return res.status(404).json({ 
-        error: "Certificate not found" 
+      return res.status(404).json({
+        error: "Certificate not found",
       });
     }
 
@@ -202,14 +207,14 @@ export const getOcrContent = async (req, res) => {
         certificateId: certificate.id,
         ocrContent: certificate.ocr_content,
         imageUrl: certificate.image_url,
-        createdAt: certificate.created_at
+        createdAt: certificate.created_at,
       });
     }
 
     // If no stored OCR content, re-process the image
     if (!certificate.image_url) {
-      return res.status(400).json({ 
-        error: "No image URL found for this certificate" 
+      return res.status(400).json({
+        error: "No image URL found for this certificate",
       });
     }
 
@@ -253,9 +258,8 @@ export const getOcrContent = async (req, res) => {
       certificateId: certificate.id,
       ocrContent,
       imageUrl: certificate.image_url,
-      createdAt: certificate.created_at
+      createdAt: certificate.created_at,
     });
-
   } catch (error) {
     console.error("getOcrContent error:", error);
     return res.status(500).json({ error: "Internal server error" });
@@ -270,8 +274,8 @@ export const getOcrContentByHash = async (req, res) => {
     const { certificateHash } = req.params;
 
     if (!certificateHash) {
-      return res.status(400).json({ 
-        error: "Certificate hash is required" 
+      return res.status(400).json({
+        error: "Certificate hash is required",
       });
     }
 
@@ -283,8 +287,8 @@ export const getOcrContentByHash = async (req, res) => {
       .single();
 
     if (fetchError || !certificate) {
-      return res.status(404).json({ 
-        error: "Certificate not found" 
+      return res.status(404).json({
+        error: "Certificate not found",
       });
     }
 
@@ -296,14 +300,14 @@ export const getOcrContentByHash = async (req, res) => {
         certificateHash: certificate.certificate_hash,
         ocrContent: certificate.ocr_content,
         imageUrl: certificate.image_url,
-        createdAt: certificate.created_at
+        createdAt: certificate.created_at,
       });
     }
 
     // If no stored OCR content, re-process the image
     if (!certificate.image_url) {
-      return res.status(400).json({ 
-        error: "No image URL found for this certificate" 
+      return res.status(400).json({
+        error: "No image URL found for this certificate",
       });
     }
 
@@ -348,11 +352,187 @@ export const getOcrContentByHash = async (req, res) => {
       certificateHash: certificate.certificate_hash,
       ocrContent,
       imageUrl: certificate.image_url,
-      createdAt: certificate.created_at
+      createdAt: certificate.created_at,
     });
-
   } catch (error) {
     console.error("getOcrContentByHash error:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+/**
+ * Generate SHA-256 hash from buffer data
+ */
+const generateFileHash = (buffer) => {
+  return crypto.createHash("sha256").update(buffer).digest("hex");
+};
+
+/**
+ * Generate SHA-256 hash from text content
+ */
+const generateContentHash = (content) => {
+  return crypto.createHash("sha256").update(content, "utf8").digest("hex");
+};
+
+/**
+ * Generate and store both file hash and content hash
+ */
+export const generateHashes = async (req, res) => {
+  try {
+    const { fileData, ocrContent, userId, certificateId } = req.body;
+
+    if (!fileData || !ocrContent) {
+      return res.status(400).json({
+        error: "File data and OCR content are required",
+      });
+    }
+
+    // Convert base64 to buffer for file hash
+    const base64ToBuffer = (base64String) => {
+      const matches = base64String.match(/^data:([A-Za-z-+/]+);base64,(.+)$/);
+      let data = base64String;
+      if (matches) {
+        data = matches[2];
+      }
+      return Buffer.from(data, "base64");
+    };
+
+    const fileBuffer = base64ToBuffer(fileData);
+
+    // Generate file hash (hash of the actual file)
+    const fileHash = generateFileHash(fileBuffer);
+
+    // Generate content hash (hash of OCR extracted content)
+    const contentHash = generateContentHash(ocrContent);
+
+    console.log("Generated file hash:", fileHash);
+    console.log("Generated content hash:", contentHash);
+
+    // Store both hashes in the hash table
+    const { data: hashRecord, error: insertError } = await supabaseAdmin
+      .from("hash")
+      .insert([
+        {
+          file_hash: fileHash,
+          content_hash: contentHash,
+          user_id: userId || null,
+          certificate_id: certificateId || null,
+          created_at: new Date().toISOString(),
+        },
+      ])
+      .select();
+
+    if (insertError) {
+      console.error("Supabase hash insert error:", insertError);
+      return res.status(500).json({
+        error: "Failed to save hash records",
+      });
+    }
+
+    return res.json({
+      message: "Hashes generated and stored successfully",
+      fileHash,
+      contentHash,
+      hashRecord: hashRecord[0],
+    });
+  } catch (error) {
+    console.error("generateHashes error:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+/**
+ * Verify file integrity by comparing with stored hash
+ */
+export const verifyFileHash = async (req, res) => {
+  try {
+    const { fileData, hashId } = req.body;
+
+    if (!fileData || !hashId) {
+      return res.status(400).json({
+        error: "File data and hash ID are required",
+      });
+    }
+
+    // Get stored hash from database
+    const { data: hashRecord, error: fetchError } = await supabaseAdmin
+      .from("hash")
+      .select("*")
+      .eq("id", hashId)
+      .single();
+
+    if (fetchError || !hashRecord) {
+      return res.status(404).json({
+        error: "Hash record not found",
+      });
+    }
+
+    // Convert base64 to buffer and generate hash
+    const base64ToBuffer = (base64String) => {
+      const matches = base64String.match(/^data:([A-Za-z-+/]+);base64,(.+)$/);
+      let data = base64String;
+      if (matches) {
+        data = matches[2];
+      }
+      return Buffer.from(data, "base64");
+    };
+
+    const fileBuffer = base64ToBuffer(fileData);
+    const currentFileHash = generateFileHash(fileBuffer);
+
+    const isValid = currentFileHash === hashRecord.file_hash;
+
+    return res.json({
+      message: "File verification completed",
+      isValid,
+      storedHash: hashRecord.file_hash,
+      currentHash: currentFileHash,
+    });
+  } catch (error) {
+    console.error("verifyFileHash error:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+/**
+ * Verify content integrity by comparing with stored hash
+ */
+export const verifyContentHash = async (req, res) => {
+  try {
+    const { content, hashId } = req.body;
+
+    if (!content || !hashId) {
+      return res.status(400).json({
+        error: "Content and hash ID are required",
+      });
+    }
+
+    // Get stored hash from database
+    const { data: hashRecord, error: fetchError } = await supabaseAdmin
+      .from("hash")
+      .select("*")
+      .eq("id", hashId)
+      .single();
+
+    if (fetchError || !hashRecord) {
+      return res.status(404).json({
+        error: "Hash record not found",
+      });
+    }
+
+    // Generate hash from current content
+    const currentContentHash = generateContentHash(content);
+
+    const isValid = currentContentHash === hashRecord.content_hash;
+
+    return res.json({
+      message: "Content verification completed",
+      isValid,
+      storedHash: hashRecord.content_hash,
+      currentHash: currentContentHash,
+    });
+  } catch (error) {
+    console.error("verifyContentHash error:", error);
     return res.status(500).json({ error: "Internal server error" });
   }
 };

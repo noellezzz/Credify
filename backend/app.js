@@ -3,8 +3,7 @@ import cors from "cors";
 import morgan from "morgan";
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
-import ocrRoutes from "./routes/ocr.routes.js";
-import hashRoutes from "./routes/hash.routes.js";
+import certificatesRoutes from "./routes/certificates.routes.js";
 
 const app = express();
 
@@ -14,7 +13,6 @@ app.use(morgan("dev"));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
-app.use("/api/ocr", ocrRoutes);
-app.use("/api/hash", hashRoutes);
+app.use("/api/certificates", certificatesRoutes);
 
 export default app;

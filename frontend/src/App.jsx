@@ -8,14 +8,12 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard/Index";
 import SideLayout from "./components/layouts/Side";
-import CertificateUpload from "./pages/CertificateUpload"; // Add this import
+import CertificateUpload from "./pages/CertificateUpload"; 
 
 const App = () => {
   return (
     <Routes>
-      <Route path="/" element={<Main />}>
-        <Route index element={<Welcome />} />
-      </Route>
+      <Route path="/" element={<Welcome />}/>
 
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />

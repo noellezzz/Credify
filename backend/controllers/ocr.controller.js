@@ -1,10 +1,8 @@
-import { v4 as uuidv4 } from "uuid";
 import { InferenceClient } from "@huggingface/inference";
 import { supabaseAdmin } from "../services/supabase.service.js";
 import cloudinary from "cloudinary";
 
 const client = new InferenceClient(process.env.HF_TOKEN);
-const BUCKET_NAME = "certificates";
 
 // Configure Cloudinary - put your cloud name, api key, secret in env vars
 cloudinary.v2.config({
@@ -30,16 +28,19 @@ export const uploadBase64 = async (req, res) => {
       return res.status(400).json({ error: "No file data received" });
     }
 
-    // Convert base64 to Buffer (optional, Cloudinary can accept base64 string)
+    // Convert base64 to Buffer
     const buffer = base64ToBuffer(fileData);
     const fileName = `certificate_${userId || "anonymous"}_${Date.now()}`;
 
+    // Determine file type from base64 data
+    const mimeType = fileData.match(/^data:([A-Za-z-+/]+);base64,/)?.[1];
+    const isPdf = mimeType === 'application/pdf';
+
     // Upload to Cloudinary
-    // Cloudinary accepts base64 data prefixed with `data:image/png;base64,`
     const cloudinaryUpload = await cloudinary.v2.uploader.upload(fileData, {
-      public_id: `certificates/${fileName}`, // folder + filename
+      public_id: `certificates/${fileName}`,
       folder: "certificates",
-      resource_type: "image",
+      resource_type: isPdf ? "raw" : "image", // Use 'raw' for PDFs
       overwrite: false,
     });
 
@@ -50,8 +51,19 @@ export const uploadBase64 = async (req, res) => {
     const imageUrl = cloudinaryUpload.secure_url;
     console.log("Cloudinary URL:", imageUrl);
 
-    // Save record to certificates table in Supabase (still using supabaseAdmin)
-    const { error: insertError } = await supabaseAdmin
+    // For PDFs, we need to convert to image first for OCR
+    let ocrImageUrl = imageUrl;
+    if (isPdf) {
+      // Convert PDF to image using Cloudinary transformation
+      ocrImageUrl = cloudinary.v2.url(cloudinaryUpload.public_id, {
+        format: 'jpg',
+        page: 1, // First page
+        resource_type: 'image'
+      });
+    }
+
+    // Save record to certificates table
+    const { data: certificate, error: insertError } = await supabaseAdmin
       .from("certificates")
       .insert([
         {
@@ -59,9 +71,12 @@ export const uploadBase64 = async (req, res) => {
           certificate_name: fileName,
           user_id: userId || null,
           image_url: imageUrl,
+          file_type: isPdf ? 'pdf' : 'image',
           created_at: new Date().toISOString(),
         },
-      ]);
+      ])
+      .select()
+      .single();
 
     if (insertError) {
       console.error("Supabase insert error:", insertError);
@@ -70,7 +85,7 @@ export const uploadBase64 = async (req, res) => {
         .json({ error: "Failed to save certificate record" });
     }
 
-    // Call Qwen inference with the Cloudinary image URL
+    // Extract text content using OCR
     const chatCompletion = await client.chatCompletion({
       provider: "fireworks-ai",
       model: "Qwen/Qwen2.5-VL-32B-Instruct",
@@ -80,25 +95,12 @@ export const uploadBase64 = async (req, res) => {
           content: [
             {
               type: "text",
-              text: `Analyze this image and return a JSON object with the following fields:
-- description: read the whole image and provide a detailed description (string)
-- objects: an array of main objects detected in the image (strings)
-- colors: an array of predominant colors (strings)
-- confidence: an estimated confidence score (0 to 1)
-
-Example response:
-{
-  "description": "A scenic mountain of mount Everest with a clear blue lake in the foreground, surrounded by lush green trees and a few white clouds in the sky.",
-  "objects": ["mountain", "lake", "trees"],
-  "colors": ["blue", "green", "white"],
-  "confidence": 0.95
-}
-`,
+              text: `Extract and return only the text content from this ${isPdf ? 'PDF document' : 'image'}. Return the text as plain text without any formatting, JSON structure, or additional commentary. Just the raw text content.`,
             },
             {
               type: "image_url",
               image_url: {
-                url: imageUrl,
+                url: ocrImageUrl,
               },
             },
           ],
@@ -106,31 +108,251 @@ Example response:
       ],
     });
 
-    const responseText = chatCompletion.choices[0].message.content;
+    const ocrContent = chatCompletion.choices[0].message.content;
 
-    let parsedData;
-    try {
-      parsedData = JSON.parse(responseText);
-    } catch (error) {
-      console.error("Failed to parse JSON response:", error);
-      // Fallback: put entire response in description
-      parsedData = { description: responseText };
+    // Update certificate with OCR content
+    const { error: updateError } = await supabaseAdmin
+      .from("certificates")
+      .update({ ocr_content: ocrContent })
+      .eq("id", certificate.id);
+
+    if (updateError) {
+      console.error("Failed to update OCR content:", updateError);
     }
 
-    console.log("Structured data from Qwen:", parsedData);
+    // Generate both hashes
+    const crypto = await import('crypto');
+    
+    // File hash (hash of the actual file buffer)
+    const fileHash = crypto.createHash('sha256').update(buffer).digest('hex');
+    
+    // Content hash (hash of OCR extracted content)
+    const contentHash = crypto.createHash('sha256').update(ocrContent, 'utf8').digest('hex');
 
-    console.log(
-      "Chat completion response:",
-      chatCompletion.choices[0].message.content
-    );
+    // Store both hashes in the hash table
+    const { data: hashRecord, error: hashInsertError } = await supabaseAdmin
+      .from("hash")
+      .insert([
+        {
+          file_hash: fileHash,
+          content_hash: contentHash,
+          user_id: userId || null,
+          certificate_id: certificate.id,
+          created_at: new Date().toISOString(),
+        },
+      ])
+      .select()
+      .single();
+
+    if (hashInsertError) {
+      console.error("Hash insert error:", hashInsertError);
+      // Don't fail the whole request, just log the error
+    }
+
+    console.log("File uploaded and processed:");
+    console.log("- File hash:", fileHash);
+    console.log("- Content hash:", contentHash);
+    console.log("- OCR content:", ocrContent.substring(0, 100) + "...");
 
     return res.json({
-      message: "File uploaded, saved, and processed successfully",
+      message: "File uploaded, processed, and hashes generated successfully",
+      certificateId: certificate.id,
       imageUrl,
-      qwenDescription: chatCompletion.choices[0].message.content,
+      fileType: isPdf ? 'pdf' : 'image',
+      fileHash,
+      contentHash,
+      ocrContent,
+      hashId: hashRecord?.id,
     });
+
   } catch (error) {
     console.error("uploadBase64 error:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const getOcrContent = async (req, res) => {
+  try {
+    const { certificateId } = req.params;
+
+    if (!certificateId) {
+      return res.status(400).json({ 
+        error: "Certificate ID is required" 
+      });
+    }
+
+    // Get certificate record from database
+    const { data: certificate, error: fetchError } = await supabaseAdmin
+      .from("certificates")
+      .select("*")
+      .eq("id", certificateId)
+      .single();
+
+    if (fetchError || !certificate) {
+      return res.status(404).json({ 
+        error: "Certificate not found" 
+      });
+    }
+
+    // If you have stored OCR content in the certificates table, return it
+    // Otherwise, re-process the image to get OCR content
+    if (certificate.ocr_content) {
+      return res.json({
+        message: "OCR content retrieved successfully",
+        certificateId: certificate.id,
+        ocrContent: certificate.ocr_content,
+        imageUrl: certificate.image_url,
+        createdAt: certificate.created_at
+      });
+    }
+
+    // If no stored OCR content, re-process the image
+    if (!certificate.image_url) {
+      return res.status(400).json({ 
+        error: "No image URL found for this certificate" 
+      });
+    }
+
+    // Call Qwen inference with the stored image URL
+    const chatCompletion = await client.chatCompletion({
+      provider: "fireworks-ai",
+      model: "Qwen/Qwen2.5-VL-32B-Instruct",
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: `Extract and return only the text content from this image. Return the text as plain text without any formatting or JSON structure.`,
+            },
+            {
+              type: "image_url",
+              image_url: {
+                url: certificate.image_url,
+              },
+            },
+          ],
+        },
+      ],
+    });
+
+    const ocrContent = chatCompletion.choices[0].message.content;
+
+    // Update the certificate record with OCR content
+    const { error: updateError } = await supabaseAdmin
+      .from("certificates")
+      .update({ ocr_content: ocrContent })
+      .eq("id", certificateId);
+
+    if (updateError) {
+      console.error("Failed to update OCR content:", updateError);
+    }
+
+    return res.json({
+      message: "OCR content extracted and retrieved successfully",
+      certificateId: certificate.id,
+      ocrContent,
+      imageUrl: certificate.image_url,
+      createdAt: certificate.created_at
+    });
+
+  } catch (error) {
+    console.error("getOcrContent error:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+/**
+ * Get OCR content by certificate hash
+ */
+export const getOcrContentByHash = async (req, res) => {
+  try {
+    const { certificateHash } = req.params;
+
+    if (!certificateHash) {
+      return res.status(400).json({ 
+        error: "Certificate hash is required" 
+      });
+    }
+
+    // Get certificate record by hash
+    const { data: certificate, error: fetchError } = await supabaseAdmin
+      .from("certificates")
+      .select("*")
+      .eq("certificate_hash", certificateHash)
+      .single();
+
+    if (fetchError || !certificate) {
+      return res.status(404).json({ 
+        error: "Certificate not found" 
+      });
+    }
+
+    // If you have stored OCR content, return it
+    if (certificate.ocr_content) {
+      return res.json({
+        message: "OCR content retrieved successfully",
+        certificateId: certificate.id,
+        certificateHash: certificate.certificate_hash,
+        ocrContent: certificate.ocr_content,
+        imageUrl: certificate.image_url,
+        createdAt: certificate.created_at
+      });
+    }
+
+    // If no stored OCR content, re-process the image
+    if (!certificate.image_url) {
+      return res.status(400).json({ 
+        error: "No image URL found for this certificate" 
+      });
+    }
+
+    // Call Qwen inference with the stored image URL
+    const chatCompletion = await client.chatCompletion({
+      provider: "fireworks-ai",
+      model: "Qwen/Qwen2.5-VL-32B-Instruct",
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: `Extract and return only the text content from this image. Return the text as plain text without any formatting or JSON structure.`,
+            },
+            {
+              type: "image_url",
+              image_url: {
+                url: certificate.image_url,
+              },
+            },
+          ],
+        },
+      ],
+    });
+
+    const ocrContent = chatCompletion.choices[0].message.content;
+
+    // Update the certificate record with OCR content
+    const { error: updateError } = await supabaseAdmin
+      .from("certificates")
+      .update({ ocr_content: ocrContent })
+      .eq("id", certificate.id);
+
+    if (updateError) {
+      console.error("Failed to update OCR content:", updateError);
+    }
+
+    return res.json({
+      message: "OCR content extracted and retrieved successfully",
+      certificateId: certificate.id,
+      certificateHash: certificate.certificate_hash,
+      ocrContent,
+      imageUrl: certificate.image_url,
+      createdAt: certificate.created_at
+    });
+
+  } catch (error) {
+    console.error("getOcrContentByHash error:", error);
     return res.status(500).json({ error: "Internal server error" });
   }
 };

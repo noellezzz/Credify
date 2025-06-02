@@ -18,6 +18,7 @@ const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNavbarVisible, setIsNavbarVisible] = useState(true);
 
+
   const handleLogout = () => {
     dispatch(clearUser());
     setIsMobileMenuOpen(false);
@@ -34,7 +35,9 @@ const Header = () => {
   const isActivePage = (path) => location.pathname === path;
 
   return (
+
     <div className={`fixed w-full z-[100] bg-[var(--secondary-color)] px-4 sm:px-6 lg:px-8 py-3 lg:py-4 transition-transform duration-300 ease-in-out ${
+
       isNavbarVisible ? 'translate-y-0' : '-translate-y-full'
     }`}>
       {/* Desktop Layout */}

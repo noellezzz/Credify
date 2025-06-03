@@ -3,6 +3,7 @@ import userReducer from "../features/user/userSlice";
 import certicatesReducer from "../features/certificates/certificatesSlice";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
+import userCertificatesReducer from "../features/certificates/userCertificatesSlice";
 import {
   FLUSH,
   REHYDRATE,
@@ -15,6 +16,7 @@ import {
 const rootReducer = combineReducers({
   user: userReducer,
   certificates: certicatesReducer,
+  userCertificates: userCertificatesReducer,
 });
 
 const persistConfig = {

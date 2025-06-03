@@ -7,6 +7,7 @@ import {
   selectSuccessMessage,
   selectUploadedImageUrl,
 } from "../features/certificates/certificatesSelector";
+import { selectUserId } from "../features/user/userSelector";
 
 const CertificateUpload = () => {
   const dispatch = useDispatch();
@@ -14,6 +15,7 @@ const CertificateUpload = () => {
   const error = useSelector(selectError);
   const successMessage = useSelector(selectSuccessMessage);
   const uploadedImageUrl = useSelector(selectUploadedImageUrl);
+  const userId = useSelector(selectUserId);
 
   const [file, setFile] = useState(null);
 
@@ -41,7 +43,7 @@ const CertificateUpload = () => {
     }
     try {
       const base64Data = await fileToBase64(file);
-      dispatch(uploadCertificateBase64({ fileData: base64Data, userId: null }));
+      dispatch(uploadCertificateBase64({ fileData: base64Data, userId: userId }));
     } catch {
       alert("Failed to read file.");
     }
@@ -66,7 +68,7 @@ const CertificateUpload = () => {
       >
         <input
           type="file"
-          accept="image/*"
+          accept="image/*,application/pdf"
           onChange={handleFileChange}
           disabled={isLoading}
           className={`block w-full rounded-lg border-2 border-dashed p-6 text-center cursor-pointer

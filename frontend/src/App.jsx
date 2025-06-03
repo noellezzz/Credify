@@ -9,6 +9,7 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard/Index";
 import SideLayout from "./components/layouts/Side";
 import CertificateUpload from "./pages/CertificateUpload"; 
+import CertificatesList from "./pages/CertificatesList";
 
 const App = () => {
   return (
@@ -21,6 +22,7 @@ const App = () => {
         <Route index element={<Dashboard />} />
         {/* Add this new route for OCR */}
         <Route path="certificates" element={<CertificateUpload />} />
+        <Route path="certificates/list" element={<CertificatesList />} />
       </Route>
     </Routes>
   );

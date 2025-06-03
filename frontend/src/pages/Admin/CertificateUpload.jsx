@@ -1,13 +1,16 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { uploadCertificateBase64, clearStatus } from "../features/certificates/certificatesSlice";
+import {
+  uploadCertificateBase64,
+  clearStatus,
+} from "../../features/certificates/certificatesSlice";
 import {
   selectIsLoading,
   selectError,
   selectSuccessMessage,
   selectUploadedImageUrl,
-} from "../features/certificates/certificatesSelector";
-import { selectUserId } from "../features/user/userSelector";
+} from "../../features/certificates/certificatesSelector";
+import { selectUserId } from "../../features/user/userSelector";
 
 const CertificateUpload = () => {
   const dispatch = useDispatch();
@@ -43,7 +46,9 @@ const CertificateUpload = () => {
     }
     try {
       const base64Data = await fileToBase64(file);
-      dispatch(uploadCertificateBase64({ fileData: base64Data, userId: userId }));
+      dispatch(
+        uploadCertificateBase64({ fileData: base64Data, userId: userId })
+      );
     } catch {
       alert("Failed to read file.");
     }

@@ -26,34 +26,40 @@ const base64ToBuffer = (base64String) => {
  */
 const validateFile = (mimeType, buffer) => {
   const allowedImageTypes = [
-    'image/jpeg',
-    'image/jpg', 
-    'image/png',
-    'image/gif',
-    'image/webp',
-    'image/bmp',
-    'image/tiff'
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+    "image/gif",
+    "image/webp",
+    "image/bmp",
+    "image/tiff",
   ];
-  
-  const allowedPdfTypes = ['application/pdf'];
-  
+
+  const allowedPdfTypes = ["application/pdf"];
+
   const maxFileSize = 10 * 1024 * 1024; // 10MB
-  
+
   if (!mimeType) {
-    throw new Error('Invalid file format: MIME type not detected');
+    throw new Error("Invalid file format: MIME type not detected");
   }
-  
+
   const isImage = allowedImageTypes.includes(mimeType);
   const isPdf = allowedPdfTypes.includes(mimeType);
-  
+
   if (!isImage && !isPdf) {
-    throw new Error(`Unsupported file type: ${mimeType}. Only images (JPEG, PNG, GIF, WebP, BMP, TIFF) and PDF files are allowed.`);
+    throw new Error(
+      `Unsupported file type: ${mimeType}. Only images (JPEG, PNG, GIF, WebP, BMP, TIFF) and PDF files are allowed.`
+    );
   }
-  
+
   if (buffer.length > maxFileSize) {
-    throw new Error(`File too large: ${(buffer.length / 1024 / 1024).toFixed(2)}MB. Maximum size is 10MB.`);
+    throw new Error(
+      `File too large: ${(buffer.length / 1024 / 1024).toFixed(
+        2
+      )}MB. Maximum size is 10MB.`
+    );
   }
-  
+
   return { isImage, isPdf };
 };
 
@@ -85,19 +91,19 @@ export const uploadBase64 = async (req, res) => {
 
     // Determine file type and mime type from base64 data
     const mimeType = fileData.match(/^data:([A-Za-z-+/]+);base64,/)?.[1];
-    
+
     // Validate file type and size
     try {
       const { isImage, isPdf } = validateFile(mimeType, buffer);
-      
+
       // Generate file hash early
       const fileHash = generateFileHash(buffer);
 
       // Upload to Cloudinary with appropriate settings
       const uploadOptions = {
-      public_id: `certificates/${fileName}`,
-      folder: "certificates",
-      overwrite: false,
+        public_id: `certificates/${fileName}`,
+        folder: "certificates",
+        overwrite: false,
       };
 
       if (isPdf) {
@@ -113,10 +119,15 @@ export const uploadBase64 = async (req, res) => {
         uploadOptions.fetch_format = "auto";
       }
 
-      const cloudinaryUpload = await cloudinary.v2.uploader.upload(fileData, uploadOptions);
+      const cloudinaryUpload = await cloudinary.v2.uploader.upload(
+        fileData,
+        uploadOptions
+      );
 
       if (!cloudinaryUpload.secure_url) {
-        return res.status(500).json({ error: "Failed to upload to Cloudinary" });
+        return res
+          .status(500)
+          .json({ error: "Failed to upload to Cloudinary" });
       }
 
       const imageUrl = cloudinaryUpload.secure_url;
@@ -128,14 +139,14 @@ export const uploadBase64 = async (req, res) => {
         ocrImageUrl = cloudinary.v2.url(cloudinaryUpload.public_id, {
           quality: "auto",
           width: 2000,
-          crop: "limit"
+          crop: "limit",
         });
       }
 
       console.log("OCR Image URL:", ocrImageUrl);
 
       // Extract text content using OCR with improved prompts
-      const ocrPrompt = isPdf 
+      const ocrPrompt = isPdf
         ? `Extract and return only the text content from this PDF document. Preserve the structure and formatting as much as possible. Return the text as plain text without any JSON structure or additional commentary.`
         : `Extract and return only the text content from this image/certificate. Preserve the structure and formatting as much as possible. Return the text as plain text without any JSON structure or additional commentary.`;
 
@@ -187,7 +198,9 @@ export const uploadBase64 = async (req, res) => {
 
       if (insertError) {
         console.error("Supabase insert error:", insertError);
-        return res.status(500).json({ error: "Failed to save certificate record" });
+        return res
+          .status(500)
+          .json({ error: "Failed to save certificate record" });
       }
 
       // Also store in hash table for backward compatibility
@@ -213,7 +226,10 @@ export const uploadBase64 = async (req, res) => {
       console.log("File uploaded and processed:");
       console.log("- Certificate ID:", certificate.id);
       console.log("- File type:", isPdf ? "PDF" : "Image");
-      console.log("- File size:", `${(buffer.length / 1024 / 1024).toFixed(2)}MB`);
+      console.log(
+        "- File size:",
+        `${(buffer.length / 1024 / 1024).toFixed(2)}MB`
+      );
       console.log("- MIME type:", mimeType);
       console.log("- File hash:", fileHash);
       console.log("- Content hash:", contentHash);
@@ -244,11 +260,9 @@ export const uploadBase64 = async (req, res) => {
           createdAt: certificate.created_at,
         },
       });
-      
     } catch (validationError) {
       return res.status(400).json({ error: validationError.message });
     }
-    
   } catch (error) {
     console.error("uploadBase64 error:", error);
     return res.status(500).json({ error: "Internal server error" });
@@ -301,19 +315,21 @@ export const getOcrContent = async (req, res) => {
 
     // Determine OCR URL based on file type
     let ocrImageUrl = certificate.image_url;
-    const isPdf = certificate.file_type === "pdf" || certificate.mime_type === "application/pdf";
-    
+    const isPdf =
+      certificate.file_type === "pdf" ||
+      certificate.mime_type === "application/pdf";
+
     if (isPdf && certificate.cloudinary_public_id) {
       // If the PDF was uploaded as image, use direct URL
       ocrImageUrl = cloudinary.v2.url(certificate.cloudinary_public_id, {
         quality: "auto",
         width: 2000,
-        crop: "limit"
+        crop: "limit",
       });
     }
 
     // Improved OCR prompt based on file type
-    const ocrPrompt = isPdf 
+    const ocrPrompt = isPdf
       ? `Extract and return only the text content from this PDF document. Preserve the structure and formatting as much as possible. Return the text as plain text without any JSON structure or additional commentary.`
       : `Extract and return only the text content from this image/certificate. Preserve the structure and formatting as much as possible. Return the text as plain text without any JSON structure or additional commentary.`;
 
@@ -345,10 +361,10 @@ export const getOcrContent = async (req, res) => {
     // Update the certificate record with OCR content
     const { error: updateError } = await supabaseAdmin
       .from("certificates")
-      .update({ 
+      .update({
         ocr_content: ocrContent,
         content_hash: generateContentHash(ocrContent),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq("id", certificateId);
 
@@ -442,10 +458,10 @@ export const getOcrContentByHash = async (req, res) => {
     // Update the certificate record with OCR content
     const { error: updateError } = await supabaseAdmin
       .from("certificates")
-      .update({ 
+      .update({
         ocr_content: ocrContent,
         content_hash: generateContentHash(ocrContent),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq("id", certificate.id);
 
@@ -491,7 +507,7 @@ export const generateHashes = async (req, res) => {
         .update({
           file_hash: fileHash,
           content_hash: contentHash,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .eq("id", certificateId);
 
@@ -609,11 +625,13 @@ export const verifyFileHash = async (req, res) => {
       isValid,
       storedHash,
       currentHash: currentFileHash,
-      certificate: certificateInfo ? {
-        id: certificateInfo.id,
-        name: certificateInfo.certificate_name,
-        createdAt: certificateInfo.created_at,
-      } : null,
+      certificate: certificateInfo
+        ? {
+            id: certificateInfo.id,
+            name: certificateInfo.certificate_name,
+            createdAt: certificateInfo.created_at,
+          }
+        : null,
     });
   } catch (error) {
     console.error("verifyFileHash error:", error);
@@ -696,11 +714,13 @@ export const verifyContentHash = async (req, res) => {
       isValid,
       storedHash,
       currentHash: currentContentHash,
-      certificate: certificateInfo ? {
-        id: certificateInfo.id,
-        name: certificateInfo.certificate_name,
-        createdAt: certificateInfo.created_at,
-      } : null,
+      certificate: certificateInfo
+        ? {
+            id: certificateInfo.id,
+            name: certificateInfo.certificate_name,
+            createdAt: certificateInfo.created_at,
+          }
+        : null,
     });
   } catch (error) {
     console.error("verifyContentHash error:", error);
@@ -765,6 +785,273 @@ export const getUserCertificates = async (req, res) => {
     });
   } catch (error) {
     console.error("getUserCertificates error:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// Add this to your certificates.controller.js
+
+export const getAllCertificates = async (req, res) => {
+  try {
+    const {
+      limit = 50,
+      offset = 0,
+      sortBy = "created_at",
+      sortOrder = "desc",
+      fileType,
+      verificationStatus,
+    } = req.query;
+
+    let query = supabaseAdmin.from("certificates").select("*");
+
+    // Add filters if provided
+    if (fileType) {
+      query = query.eq("file_type", fileType);
+    }
+
+    if (verificationStatus) {
+      query = query.eq("verification_status", verificationStatus);
+    }
+
+    // Add sorting
+    const ascending = sortOrder.toLowerCase() === "asc";
+    query = query.order(sortBy, { ascending });
+
+    // Add pagination
+    query = query.range(offset, offset + parseInt(limit) - 1);
+
+    const { data: certificates, error: fetchError } = await query;
+
+    if (fetchError) {
+      console.error("Fetch all certificates error:", fetchError);
+      return res.status(500).json({ error: "Failed to fetch certificates" });
+    }
+
+    // Get total count for pagination
+    const { count, error: countError } = await supabaseAdmin
+      .from("certificates")
+      .select("*", { count: "exact", head: true });
+
+    if (countError) {
+      console.warn("Failed to get total count:", countError);
+    }
+
+    return res.json({
+      message: "All certificates retrieved successfully",
+      certificates,
+      count: certificates.length,
+      totalCount: count || 0,
+      pagination: {
+        limit: parseInt(limit),
+        offset: parseInt(offset),
+        hasMore: certificates.length === parseInt(limit),
+      },
+    });
+  } catch (error) {
+    console.error("getAllCertificates error:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const getCertificateStats = async (req, res) => {
+  try {
+    // Get overall statistics
+    const { data: allCerts, error: allError } = await supabaseAdmin
+      .from("certificates")
+      .select("file_type, verification_status, file_size");
+
+    if (allError) {
+      console.error("Get stats error:", allError);
+      return res.status(500).json({ error: "Failed to fetch statistics" });
+    }
+
+    const stats = {
+      total: allCerts.length,
+      byFileType: {},
+      byVerificationStatus: {},
+      totalFileSize: 0,
+    };
+
+    allCerts.forEach((cert) => {
+      // Count by file type
+      stats.byFileType[cert.file_type] =
+        (stats.byFileType[cert.file_type] || 0) + 1;
+
+      // Count by verification status
+      stats.byVerificationStatus[cert.verification_status] =
+        (stats.byVerificationStatus[cert.verification_status] || 0) + 1;
+
+      // Sum file sizes
+      stats.totalFileSize += cert.file_size || 0;
+    });
+
+    return res.json({
+      message: "Certificate statistics retrieved successfully",
+      stats,
+    });
+  } catch (error) {
+    console.error("getCertificateStats error:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const revokeCertificate = async (req, res) => {
+  try {
+    const { certificateId } = req.params;
+
+    if (!certificateId) {
+      return res.status(400).json({ error: "Certificate ID is required" });
+    }
+
+    // Fetch certificate first
+    const { data: certificate, error: fetchError } = await supabaseAdmin
+      .from("certificates")
+      .select("*")
+      .eq("id", certificateId)
+      .single();
+
+    if (fetchError || !certificate) {
+      return res.status(404).json({ error: "Certificate not found" });
+    }
+
+    if (certificate.revoked) {
+      return res.status(400).json({ error: "Certificate is already revoked" });
+    }
+
+    // Update certificate to set revoked = true
+    const { error: updateError } = await supabaseAdmin
+      .from("certificates")
+      .update({
+        revoked: true,
+        revoked_at: new Date().toISOString(),
+      })
+      .eq("id", certificateId);
+
+    if (updateError) {
+      console.error("Failed to revoke certificate:", updateError);
+      return res.status(500).json({ error: "Failed to revoke certificate" });
+    }
+
+    return res.json({
+      message: "Certificate revoked successfully",
+      certificateId,
+      revokedAt: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("revokeCertificate error:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const unrevokeCertificate = async (req, res) => {
+  try {
+    const { certificateId } = req.params;
+
+    if (!certificateId) {
+      return res.status(400).json({ error: "Certificate ID is required" });
+    }
+
+    // Fetch certificate first
+    const { data: certificate, error: fetchError } = await supabaseAdmin
+      .from("certificates")
+      .select("*")
+      .eq("id", certificateId)
+      .single();
+
+    if (fetchError || !certificate) {
+      return res.status(404).json({ error: "Certificate not found" });
+    }
+
+    if (!certificate.revoked) {
+      return res.status(400).json({ error: "Certificate is not revoked" });
+    }
+
+    // Update certificate to set revoked = false
+    const { error: updateError } = await supabaseAdmin
+      .from("certificates")
+      .update({
+        revoked: false,
+        revoked_at: null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", certificateId);
+
+    if (updateError) {
+      console.error("Failed to unrevoke certificate:", updateError);
+      return res.status(500).json({ error: "Failed to unrevoke certificate" });
+    }
+
+    return res.json({
+      message: "Certificate unrevoked successfully",
+      certificateId,
+      unrevokedAt: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("unrevokeCertificate error:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// Also add a function to get only revoked certificates
+export const getRevokedCertificates = async (req, res) => {
+  try {
+    const {
+      limit = 50,
+      offset = 0,
+      sortBy = "revoked_at",
+      sortOrder = "desc",
+      fileType,
+    } = req.query;
+
+    let query = supabaseAdmin
+      .from("certificates")
+      .select("*")
+      .eq("revoked", true);
+
+    // Add filters if provided
+    if (fileType) {
+      query = query.eq("file_type", fileType);
+    }
+
+    // Add sorting
+    const ascending = sortOrder.toLowerCase() === "asc";
+    query = query.order(sortBy, { ascending });
+
+    // Add pagination
+    query = query.range(offset, offset + parseInt(limit) - 1);
+
+    const { data: certificates, error: fetchError } = await query;
+
+    if (fetchError) {
+      console.error("Fetch revoked certificates error:", fetchError);
+      return res
+        .status(500)
+        .json({ error: "Failed to fetch revoked certificates" });
+    }
+
+    // Get total count for pagination
+    const { count, error: countError } = await supabaseAdmin
+      .from("certificates")
+      .select("*", { count: "exact", head: true })
+      .eq("revoked", true);
+
+    if (countError) {
+      console.warn("Failed to get total count:", countError);
+    }
+
+    return res.json({
+      message: "Revoked certificates retrieved successfully",
+      certificates,
+      count: certificates.length,
+      totalCount: count || 0,
+      pagination: {
+        limit: parseInt(limit),
+        offset: parseInt(offset),
+        hasMore: certificates.length === parseInt(limit),
+      },
+    });
+  } catch (error) {
+    console.error("getRevokedCertificates error:", error);
     return res.status(500).json({ error: "Internal server error" });
   }
 };

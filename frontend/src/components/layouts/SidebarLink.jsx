@@ -1,19 +1,16 @@
-// SidebarLink.jsx
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, matchPath } from "react-router-dom";
 
 const SidebarLink = ({ Icon, text, to, onClick, isMobile }) => {
-  const location = useLocation();
-  let isActive = false;
+   const location = useLocation();
 
-  if (location.pathname === "/admin") {
-    isActive = location.pathname === to;
-  } else {
-    isActive = location.pathname.startsWith(to) && to !== "/admin";
-  }
+  const isActive = !!matchPath(
+    { path: to, end: true }, 
+    location.pathname
+  );
 
   const handleClick = () => {
     if (onClick) {
-      onClick(); // Close mobile menu when link is clicked
+      onClick(); 
     }
   };
 

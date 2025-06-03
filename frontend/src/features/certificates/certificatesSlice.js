@@ -1,4 +1,3 @@
-// src/features/ocr/ocrSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "../../utils/axios"; // same pattern as your login example
 
@@ -10,10 +9,10 @@ const initialState = {
 };
 
 export const uploadCertificateBase64 = createAsyncThunk(
-  "ocr/uploadCertificateBase64",
+  "certificates/uploadCertificateBase64",
   async ({ fileData, userId }, { rejectWithValue }) => {
     try {
-      const res = await axios.post("/ocr/upload-base64", {
+      const res = await axios.post("/certificates/upload-base64", {
         fileData,
         userId,
         mode: "process",
@@ -25,8 +24,8 @@ export const uploadCertificateBase64 = createAsyncThunk(
   }
 );
 
-const ocrSlice = createSlice({
-  name: "ocr",
+const certificatesSlice = createSlice({
+  name: "certificates",
   initialState,
   reducers: {
     clearStatus(state) {
@@ -55,5 +54,5 @@ const ocrSlice = createSlice({
   },
 });
 
-export const { clearStatus } = ocrSlice.actions;
-export default ocrSlice.reducer;
+export const { clearStatus } = certificatesSlice.actions;
+export default certificatesSlice.reducer;

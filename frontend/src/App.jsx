@@ -6,21 +6,25 @@ import Main from "./components/layouts/Main";
 import Welcome from "./pages/Welcome/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Dashboard from "./pages/Dashboard/Index";
 import SideLayout from "./components/layouts/Side";
-import CertificateUpload from "./pages/CertificateUpload"; 
+import CertificateUpload from "./pages/Admin/CertificateUpload";
+import AllCertificatesList from "./pages/Admin/AllCertificatesList";
+import RevokedCertificatesList from "./pages/Admin/RevokedCertificates";
+import UserManagement from "./pages/Admin/UserManagement";
 
 const App = () => {
   return (
     <Routes>
-      <Route path="/" element={<Welcome />}/>
-
+      <Route path="/" element={<Welcome />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/admin" element={<SideLayout />}>
-        <Route index element={<Dashboard />} />
-        {/* Add this new route for OCR */}
+        {/* Index route - this will be the default when /admin is accessed */}
+        <Route index element={<CertificateUpload />} />
         <Route path="certificates" element={<CertificateUpload />} />
+        <Route path="certificates/all" element={<AllCertificatesList />} />
+        <Route path="certificates/revoked" element={<RevokedCertificatesList/>} />
+        <Route path="certificates/users" element={<UserManagement/>} />
       </Route>
     </Routes>
   );

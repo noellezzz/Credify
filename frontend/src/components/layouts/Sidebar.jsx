@@ -7,8 +7,10 @@ import {
   LuUsers,
   LuHouse,
   LuFileText,
+  LuList,
   LuMenu,
   LuX,
+  LuArchiveRestore,
 } from "react-icons/lu";
 import SidebarLink from "./SidebarLink";
 import Logo from "../../assets/Credify.png";
@@ -155,6 +157,27 @@ const Sidebar = () => {
                 to="/admin/certificates"
                 Icon={LuFileText}
                 text="Certificates"
+                onClick={closeMobileMenu}
+                isMobile={isMobile}
+              />
+              <SidebarLink
+                to="/admin/certificates/all"
+                Icon={LuList}
+                text="Uploaded Certificates"
+                onClick={closeMobileMenu}
+                isMobile={isMobile}
+              />
+              <SidebarLink
+                to="/admin/certificates/revoked"
+                Icon={LuArchiveRestore}
+                text="Revoked Certificates"
+                onClick={closeMobileMenu}
+                isMobile={isMobile}
+              />
+              <SidebarLink
+                to="/admin/certificates/users"
+                Icon={LuUsers}
+                text="User Management"
                 onClick={closeMobileMenu}
                 isMobile={isMobile}
               />

@@ -6,6 +6,7 @@ import {
   generateHashes,
   verifyFileHash,
   verifyContentHash,
+  getUserCertificates
 } from "../controllers/certificates.controller.js";
 
 const router = express.Router();
@@ -25,4 +26,5 @@ router.post("/verify-file", verifyFileHash);
 // Verify content integrity
 router.post("/verify-content", verifyContentHash);
 
+router.get("/user/:userId", getUserCertificates);
 export default router;

@@ -7,6 +7,7 @@ import {
   LuUsers,
   LuHouse,
   LuFileText,
+  LuList, 
   LuMenu,
   LuX,
 } from "react-icons/lu";
@@ -155,6 +156,13 @@ const Sidebar = () => {
                 to="/admin/certificates"
                 Icon={LuFileText}
                 text="Certificates"
+                onClick={closeMobileMenu}
+                isMobile={isMobile}
+              />
+              <SidebarLink
+                to="/admin/certificates/list"
+                Icon={LuList}
+                text="Uploaded Certificates"
                 onClick={closeMobileMenu}
                 isMobile={isMobile}
               />

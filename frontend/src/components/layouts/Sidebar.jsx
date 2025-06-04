@@ -1,6 +1,6 @@
 // Sidebar.jsx
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, matchPath, Outlet } from "react-router-dom";
 import {
   LuClipboard,
   LuGitGraph,
@@ -12,9 +12,93 @@ import {
   LuX,
   LuArchiveRestore,
 } from "react-icons/lu";
-import SidebarLink from "./SidebarLink";
 import Logo from "../../assets/Credify.png";
 
+// Internal SidebarLink component
+const SidebarLink = ({ Icon, text, to, onClick, isMobile }) => {
+  const location = useLocation();
+
+  const isActive = !!matchPath(
+    { path: to, end: true },
+    location.pathname
+  );
+
+  const handleClick = () => {
+    if (onClick) {
+      onClick();
+    }
+  };
+
+  return (
+    <Link
+      to={to}
+      onClick={handleClick}
+      className={`group flex items-center w-full p-3 rounded-lg transition-all duration-200 ${
+        isActive
+          ? "bg-[var(--secondary-color)] text-white shadow-md"
+          : "text-gray-700 hover:text-gray-900 hover:bg-gray-100"
+      }`}
+    >
+      {/* Mobile Layout - Horizontal */}
+      {isMobile ? (
+        <div className="flex items-center gap-4 w-full">
+          <div className="flex-shrink-0">
+            <Icon
+              size={20}
+              className={`transition-colors ${
+                isActive
+                  ? "text-white"
+                  : "text-gray-600 group-hover:text-gray-800"
+              }`}
+            />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p
+              className={`font-medium text-base transition-colors ${
+                isActive
+                  ? "text-white"
+                  : "text-gray-700 group-hover:text-gray-900"
+              }`}
+            >
+              {text}
+            </p>
+          </div>
+          {/* Active indicator for mobile */}
+          {isActive && (
+            <div className="w-2 h-2 bg-white rounded-full flex-shrink-0" />
+          )}
+        </div>
+      ) : (
+        /* Desktop Layout - Grid */
+        <div className="grid grid-cols-[25%_75%] items-center w-full gap-3">
+          <div className="flex justify-end">
+            <Icon
+              size={18}
+              className={`transition-colors ${
+                isActive
+                  ? "text-white"
+                  : "text-gray-600 group-hover:text-gray-800"
+              }`}
+            />
+          </div>
+          <div className="text-left">
+            <p
+              className={`font-medium text-sm transition-colors ${
+                isActive
+                  ? "text-white"
+                  : "text-gray-700 group-hover:text-gray-900"
+              }`}
+            >
+              {text}
+            </p>
+          </div>
+        </div>
+      )}
+    </Link>
+  );
+};
+
+// Main Sidebar Layout Component
 const Sidebar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -90,7 +174,7 @@ const Sidebar = () => {
   };
 
   return (
-    <>
+    <div className="flex w-screen h-screen bg-gray-50">
       {/* Mobile Menu Button - Fixed Position */}
       {isMobile && (
         <button
@@ -203,7 +287,25 @@ const Sidebar = () => {
           </div>
         </div>
       </div>
-    </>
+
+      {/* Main content */}
+      <div className="flex flex-col flex-grow w-full">
+        {/* Header */}
+        <header
+          className={`
+            sticky top-0 z-10 h-20 bg-white border-b shadow-sm flex items-center px-4 lg:px-6
+            ${isMobile ? "pl-16" : ""}
+          `}
+        >
+          <h1 className="text-2xl font-semibold text-gray-800">Dashboard</h1>
+        </header>
+
+        {/* Page Content */}
+        <main className={`flex-grow overflow-auto p-4 ${isMobile ? "pr-8" : ""}`}>
+          <Outlet />
+        </main>
+      </div>
+    </div>
   );
 };
 

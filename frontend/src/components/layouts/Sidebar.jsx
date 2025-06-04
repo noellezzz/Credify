@@ -95,7 +95,7 @@ const Sidebar = () => {
       {isMobile && (
         <button
           onClick={toggleMobileMenu}
-          className="mobile-menu-button fixed top-4 left-4 z-50 bg-white shadow-lg rounded-lg p-3 border hover:bg-gray-50 transition-all duration-200 lg:hidden"
+          className="mobile-menu-button fixed top-4 left-4 z-[60] bg-white shadow-lg rounded-lg p-3 border hover:bg-gray-50 transition-all duration-200 lg:hidden"
           aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
         >
           {isMobileMenuOpen ? (
@@ -109,7 +109,7 @@ const Sidebar = () => {
       {/* Mobile Overlay */}
       {isMobileMenuOpen && isMobile && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden transition-opacity duration-300"
+          className="fixed inset-0 bg-black bg-opacity-50 z-[55] lg:hidden transition-opacity duration-300"
           style={{ top: 0, left: 0, right: 0, bottom: 0 }}
           onClick={closeMobileMenu}
         />
@@ -119,10 +119,10 @@ const Sidebar = () => {
       <div
         className={`mobile-sidebar bg-[var(--quaternary-color)] shadow-xl transition-all duration-300 ease-in-out lg:relative lg:translate-x-0 lg:shadow-lg lg:z-auto ${
           isMobile
-            ? `fixed top-0 left-0 z-50 h-full w-80 transform ${
+            ? `fixed top-0 left-0 z-[56] h-full w-80 transform ${
                 isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
               }`
-            : "h-full w-50"
+            : "h-full w-64"
         }`}
       >
         <div className="flex flex-col h-full">

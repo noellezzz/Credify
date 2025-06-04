@@ -26,7 +26,7 @@ const SidebarLink = ({ Icon, text, to, onClick, isMobile }) => {
     >
       {/* Mobile Layout - Horizontal */}
       {isMobile ? (
-        <div className="flex items-center gap-4 w-full bg-red-500 mt-20">
+        <div className="flex items-center gap-4 w-full">
           <div className="flex-shrink-0">
             <Icon
               size={20}

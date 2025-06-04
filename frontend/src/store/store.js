@@ -4,7 +4,8 @@ import certicatesReducer from "../features/certificates/certificatesSlice";
 import userCertificatesReducer from "../features/certificates/userCertificatesSlice";
 import allCertificatesReducer from "../features/certificates/allCertificatesSlice";
 import revokedCertificatesReducer from "../features/certificates/revokedCertificatesSlice";
-import userManagementReducer from "../features/user/userManagementSlice"; // Add this import
+import userManagementReducer from "../features/user/userManagementSlice";
+import verificationReducer from "../features/certificates/verificationSlice";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import {
@@ -22,7 +23,8 @@ const rootReducer = combineReducers({
   userCertificates: userCertificatesReducer,
   allCertificates: allCertificatesReducer,
   revokedCertificates: revokedCertificatesReducer,
-  userManagement: userManagementReducer, // Add this line
+  userManagement: userManagementReducer,
+  verification: verificationReducer,
 });
 
 const persistConfig = {

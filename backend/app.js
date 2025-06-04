@@ -4,6 +4,7 @@ import morgan from "morgan";
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import certificatesRoutes from "./routes/certificates.routes.js";
+import verificationRoutes from "./routes/verification.routes.js";
 
 const app = express();
 
@@ -14,5 +15,6 @@ app.use(morgan("dev"));
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/certificates", certificatesRoutes);
+app.use("/api/verification", verificationRoutes);
 
 export default app;

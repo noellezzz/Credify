@@ -56,31 +56,38 @@ const Login = () => {
   };
 
   const handleSubmit = async (e) => {
-    e?.preventDefault();
-    
-    if (!validateForm() || isLoading) return;
-    
-    setIsLoading(true);
-    
-    try {
-      const res = await axios.post("/auth/login", formData);
-      if (res.data.message === "Success") {
-        await Swal.fire({
-          title: "Welcome Back!",
-          text: "Login successful. Redirecting...",
-          icon: "success",
-          timer: 1500,
-          showConfirmButton: false,
-          backdrop: 'rgba(0,0,0,0.8)',
-          customClass: {
-            popup: 'animate__animated animate__fadeInDown'
-          }
-        });
-        dispatch(setUser(res.data.parsedUser));
+  e?.preventDefault();
+  
+  if (!validateForm() || isLoading) return;
+  
+  setIsLoading(true);
+  
+  try {
+    const res = await axios.post("/auth/login", formData);
+    if (res.data.message === "Success") {
+      await Swal.fire({
+        title: "Welcome Back!",
+        text: "Login successful. Redirecting...",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false,
+        backdrop: 'rgba(0,0,0,0.8)',
+        customClass: {
+          popup: 'animate__animated animate__fadeInDown'
+        }
+      });
+      
+      dispatch(setUser(res.data.parsedUser));
+      
+      // Check user role and redirect accordingly
+      if (res.data.parsedUser.role === 'admin') {
+        navigate("/admin", { replace: true });
+      } else {
         navigate("/", { replace: true });
       }
-    } catch (e) {
-      setIsLoading(false);
+    }
+  } catch (e) {
+    setIsLoading(false);
       
       if (e.response?.data?.message === "invalid_credentials") {
         Swal.fire({

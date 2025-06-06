@@ -7,6 +7,7 @@ import {
   revokeCertificate,
   unrevokeCertificate,
   getRevokedCertificates,
+  storeToBlockChain,
 } from "../controllers/certificates.controller.js";
 
 const router = express.Router();
@@ -23,5 +24,7 @@ router.get("/user/:userId", getUserCertificates); // Get user's certificates
 // Certificate management
 router.post("/revoke/:certificateId", revokeCertificate);
 router.post("/unrevoke/:certificateId", unrevokeCertificate);
+
+router.post("/testmotoko", storeToBlockChain);
 
 export default router;

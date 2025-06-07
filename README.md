@@ -70,9 +70,7 @@ A secure, tamper-proof certificate verification platform that leverages blockcha
    CLOUDINARY_CLOUD_NAME=your_cloudinary_name
    CLOUDINARY_API_KEY=your_cloudinary_key
    CLOUDINARY_API_SECRET=your_cloudinary_secret
-   XAPI_KEY=your_xapi_key
-   DFX_NETWORK=local
-   CANISTER_ID_CERTIFICATE_REGISTRY=your_canister_id
+   HF_TOKEN=your_hf_token
    ```
 
 4. **Set up Frontend**
@@ -250,7 +248,6 @@ src/
 - Node.js with Express
 - Supabase for database
 - Cloudinary for file storage
-- X.AI API for OCR processing
 
 **Blockchain:**
 - Internet Computer Protocol (ICP)
@@ -294,20 +291,15 @@ const verifyCertificate = async (fileData) => {
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🆘 Support
 
-For support, email support@credify.com or create an issue on GitHub.
+For support, email dacumosmiguel@gmail.com or create an issue on GitHub.
 
 ## 🔗 Links
 
-- [Live Demo](https://credify-demo.com)
-- [API Documentation](https://api.credify.com/docs)
-- [Blockchain Explorer](https://ic-explorer.credify.com)
+- No available Links at the moment
 
 ---
 
-**Built with ❤️ by the Credify Team**
+**Built with ❤️ by the HackStars Team**

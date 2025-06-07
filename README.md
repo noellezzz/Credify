@@ -2,7 +2,7 @@
 
 A secure, tamper-proof certificate verification platform that leverages blockchain technology, AI-powered OCR, and modern web technologies to provide instant credential verification.
 
-![Credify Logo](https://via.placeholder.com/400x100?text=Credify+Logo)
+![Credify Logo](https://res.cloudinary.com/dyafxqbm0/image/upload/v1749296074/Credify_kdahqs.png)
 
 ## 🌟 Features
 

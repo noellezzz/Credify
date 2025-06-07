@@ -88,9 +88,9 @@ const Header = () => {
             <div className="flex items-center gap-3">
               {/* User Avatar/Greeting */}
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-[var(--tertiary-color)] flex items-center justify-center text-[var(--secondary-color)] font-semibold text-sm">
+                <Link to="/profile" className="w-8 h-8 rounded-full bg-[var(--tertiary-color)] flex items-center justify-center text-[var(--secondary-color)] font-semibold text-sm hover:scale-105 transition-transform duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--tertiary-color)]">
                   {user?.name?.charAt(0)?.toUpperCase() || 'U'}
-                </div>
+                </Link>
                 <span className="text-white text-sm hidden xl:block">
                   Hi, {user?.name?.split(' ')[0] || 'User'}
                 </span>
@@ -132,9 +132,9 @@ const Header = () => {
         {/* Mobile User Info */}
         {isLoggedIn && (
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-[var(--tertiary-color)] flex items-center justify-center text-[var(--secondary-color)] font-semibold text-sm">
+            <Link to="/profile" className="w-8 h-8 rounded-full bg-[var(--tertiary-color)] flex items-center justify-center text-[var(--secondary-color)] font-semibold text-sm hover:scale-105 transition-transform duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--tertiary-color)]">
               {user?.name?.charAt(0)?.toUpperCase() || 'U'}
-            </div>
+            </Link>
           </div>
         )}
 

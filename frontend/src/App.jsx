@@ -12,11 +12,13 @@ import AllCertificatesList from "./pages/Admin/AllCertificatesList";
 import RevokedCertificatesList from "./pages/Admin/RevokedCertificates";
 import UserManagement from "./pages/Admin/UserManagement";
 import CertificateVerification from "./pages/Welcome/Verification";
+import Profile from "./pages/Client/Profile";
 
 const App = () => {
   return (
     <Routes>
       <Route path="/" element={<Welcome />} />
+      <Route path="/profile" element={<Profile />} />
 
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />

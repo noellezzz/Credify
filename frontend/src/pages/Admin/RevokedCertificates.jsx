@@ -21,6 +21,7 @@ import {
   selectUnrevokeLoading,
   selectRevokedCertificatesStats,
 } from "../../features/certificates/revokedCertificatesSelector";
+import { selectUserRole } from "../../features/user/userSelector";
 import {
   FaFile,
   FaEye,
@@ -38,6 +39,7 @@ import {
 
 const RevokedCertificatesList = () => {
   const dispatch = useDispatch();
+  const userRole = useSelector(selectUserRole);
   const certificates = useSelector(selectRevokedCertificates);
   const isLoading = useSelector(selectRevokedCertificatesLoading);
   const error = useSelector(selectRevokedCertificatesError);
@@ -56,9 +58,15 @@ const RevokedCertificatesList = () => {
   const [showStats, setShowStats] = useState(false);
   const [unrevokeConfirm, setUnrevokeConfirm] = useState(null);
 
+  // Check if user is admin
+  const isAdmin = userRole === "admin";
+
   useEffect(() => {
-    dispatch(fetchRevokedCertificates(filters));
-  }, [dispatch]);
+    // Only fetch if user is admin
+    if (isAdmin) {
+      dispatch(fetchRevokedCertificates(filters));
+    }
+  }, [dispatch, isAdmin]);
 
   const handleViewCertificate = (certificate) => {
     setSelectedCertificate(certificate);
@@ -133,6 +141,31 @@ const RevokedCertificatesList = () => {
   const isUnrevokingCertificate = (certificateId) => {
     return unrevokeLoading[certificateId] || false;
   };
+
+  // Redirect or show access denied if not admin
+  if (!isAdmin) {
+    return (
+      <div className="bg-[var(--primary-color)] p-4 sm:p-6 min-h-screen">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center py-12">
+            <FaBan className="w-16 h-16 text-red-500 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              Access Denied
+            </h3>
+            <p className="text-gray-600">
+              You need administrator privileges to access this page.
+            </p>
+            <button
+              onClick={() => window.history.back()}
+              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Go Back
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-[var(--primary-color)] p-4 sm:p-6 min-h-screen">

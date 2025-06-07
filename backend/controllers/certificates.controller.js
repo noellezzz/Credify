@@ -3,7 +3,18 @@ import { supabaseAdmin } from "../services/supabase.service.js";
 import cloudinary from "cloudinary";
 import crypto from "crypto";
 
+import { HttpAgent, Actor } from "@dfinity/agent";
+import { idlFactory } from "../services/motoko.service.js";
+
+const canisterId = "uxrrr-q7777-77774-qaaaq-cai";
+
 const client = new InferenceClient(process.env.HF_TOKEN);
+const agent = new HttpAgent({ host: "http://127.0.0.1:4943" });
+agent.fetchRootKey();
+const certificateRegistryActor = Actor.createActor(idlFactory, {
+  agent,
+  canisterId: "uxrrr-q7777-77774-qaaaq-cai",
+});
 
 // Configure Cloudinary
 cloudinary.v2.config({
@@ -11,6 +22,62 @@ cloudinary.v2.config({
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
+
+export const checkConnection = async () => {
+  try {
+    // Calling a simple query method to check if the canister is connected
+    const result = await certificateRegistryActor.getCertificate("someId");
+    console.log("Connection successful:", result);
+  } catch (error) {
+    console.error("Error connecting to the canister:", error);
+  }
+};
+
+export const storeToBlockChain = async (req, res) => {
+  const { id, fileHash, contentHash, fileType, imageUrl, ocrContent } =
+    req.body;
+  console.log(agent);
+  await checkConnection();
+  console.log("Available Methods: ", Object.keys(certificateRegistryActor));
+  try {
+    const result = await certificateRegistryActor.storeCertificate(
+      id,
+      fileHash,
+      contentHash,
+      fileType,
+      imageUrl,
+      ocrContent
+    );
+    if (!result) {
+      console.log("Failed to store in blockchain. Response:", result);
+      throw new Error("Failed to store certificate in blockchain");
+    }
+    console.log("Successfully stored certificate in blockchain:", result);
+  } catch (error) {
+    console.error("Error storing certificate in blockchain:", error);
+    throw error;
+  }
+};
+
+const storeToBlockChainHelper = async (payload) => {
+  const { id, fileHash, contentHash, fileType, imageUrl, ocrContent } = payload;
+
+  try {
+    const result = certificateRegistryActor.storeCertificate(
+      id,
+      fileHash,
+      contentHash,
+      fileType,
+      imageUrl,
+      ocrContent
+    );
+
+    console.log("Successfully stored certificate in blockchain:", result);
+  } catch (error) {
+    console.error("Error storing certificate in blockchain:", error);
+    throw error;
+  }
+};
 
 const base64ToBuffer = (base64String) => {
   const matches = base64String.match(/^data:([A-Za-z-+/]+);base64,(.+)$/);
@@ -176,7 +243,7 @@ export const uploadBase64 = async (req, res) => {
       // Save complete record to certificates table
       const { data: certificate, error: insertError } = await supabaseAdmin
         .from("certificates")
-        .insert([
+        .upsert([
           {
             certificate_hash: fileName,
             certificate_name: fileName,
@@ -234,6 +301,16 @@ export const uploadBase64 = async (req, res) => {
       console.log("- File hash:", fileHash);
       console.log("- Content hash:", contentHash);
       console.log("- OCR content:", ocrContent.substring(0, 100) + "...");
+
+      const blockChainPayload = {
+        id: certificate.id,
+        fileHash: certificate.file_hash,
+        contentHash: certificate.content_hash,
+        fileType: certificate.file_type,
+        imageUrl: certificate.image_url,
+        ocrContent: certificate.ocr_content,
+      };
+      storeToBlockChainHelper(blockChainPayload);
 
       return res.json({
         message: "File uploaded, processed, and hashes generated successfully",

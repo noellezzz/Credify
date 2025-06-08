@@ -6,7 +6,7 @@ import crypto from "crypto";
 import { HttpAgent, Actor } from "@dfinity/agent";
 import { idlFactory } from "../services/motoko.service.js";
 
-const canisterId = "3db7c-uaaaa-aaaaa-qalea-cai"; // ✅ Correct one!
+const canisterId = "3db7c-uaaaa-aaaaa-qalea-cai"; 
 
 const client = new InferenceClient(process.env.HF_TOKEN);
 const agent = new HttpAgent({
@@ -640,6 +640,68 @@ export const getRevokedCertificates = async (req, res) => {
     });
   } catch (error) {
     console.error("getRevokedCertificates error:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// Add this function to your existing certificates.controller.js
+
+export const getUserCertificatesByNameAndId = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { limit = 50, offset = 0 } = req.query;
+
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+
+    // First, get user's first and last name from the database
+    const { data: userData, error: userError } = await supabaseAdmin
+      .from("users")
+      .select("firstname, lastname")
+      .eq("auth_id", userId)
+      .single();
+
+    if (userError || !userData) {
+      console.error("User fetch error:", userError);
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const { firstname: firstName, lastname: lastName } = userData;
+
+    // If user doesn't have first and last name, return empty array
+    if (!firstName || !lastName) {
+      return res.json({
+        message: "User name information not available for certificate search",
+        certificates: [],
+        count: 0,
+      });
+    }
+
+    const fullName = `${firstName} ${lastName}`;
+    
+    // Search for certificates containing the user's name in OCR content only
+    const { data: certificatesByName, error: nameError } = await supabaseAdmin
+      .from("certificates")
+      .select("*")
+      .or(`ocr_content.ilike.%${firstName}%,ocr_content.ilike.%${lastName}%,ocr_content.ilike.%${fullName}%`)
+      .eq("revoked", false) // Only show non-revoked certificates
+      .order("created_at", { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (nameError) {
+      console.error("Fetch certificates by name error:", nameError);
+      return res.status(500).json({ error: "Failed to fetch certificates by name" });
+    }
+
+    return res.json({
+      message: "Certificates retrieved successfully by name recognition",
+      certificates: certificatesByName || [],
+      count: (certificatesByName || []).length,
+      searchedName: fullName, // Include this for debugging/verification
+    });
+  } catch (error) {
+    console.error("getUserCertificatesByNameAndId error:", error);
     return res.status(500).json({ error: "Internal server error" });
   }
 };

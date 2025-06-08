@@ -2,6 +2,7 @@ import express from "express";
 import {
   uploadBase64,
   getUserCertificates,
+  getUserCertificatesByNameAndId,
   getAllCertificates,
   getCertificateStats,
   revokeCertificate,
@@ -20,6 +21,7 @@ router.get("/all", getAllCertificates); // Get all certificates
 router.get("/revoked", getRevokedCertificates); // Get revoked certificates
 router.get("/stats", getCertificateStats); // Get certificate statistics
 router.get("/user/:userId", getUserCertificates); // Get user's certificates
+router.get("/user/:userId/with-name", getUserCertificatesByNameAndId); // Get user's certificates by ID and name match
 
 // Certificate management
 router.post("/revoke/:certificateId", revokeCertificate);

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { selectUser, selectUserRole } from "../../features/user/userSelector";
+import { clearUser } from "../../features/user/userSlice";
 import { Link } from "react-router-dom";
 import Header from "../../components/layouts/Header";
 
@@ -9,12 +10,12 @@ const HEADER_HEIGHT = 88;
 const Profile = () => {
   const user = useSelector(selectUser);
   const userRole = useSelector(selectUserRole);
+  const dispatch = useDispatch();
   const [selectedCert, setSelectedCert] = useState(null);
   const [tab, setTab] = useState("profile");
 
   const handleLogout = () => {
     dispatch(clearUser());
-    setIsMobileMenuOpen(false);
   };
 
   const certificates = [

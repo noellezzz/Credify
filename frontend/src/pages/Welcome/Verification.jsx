@@ -53,6 +53,21 @@ const CertificateVerification = () => {
   const handleFileChange = (selectedFile) => {
     dispatch(clearVerificationResult());
     dispatch(clearError());
+    
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/bmp', 'image/tiff', 'application/pdf'];
+    if (!allowedTypes.includes(selectedFile.type)) {
+      alert('Please select a valid file type (JPEG, PNG, GIF, WebP, BMP, TIFF, PDF)');
+      return;
+    }
+    
+    // Validate file size (10MB limit)
+    const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+    if (selectedFile.size > maxSize) {
+      alert('File size must be less than 10MB');
+      return;
+    }
+    
     setFile(selectedFile);
   };
 

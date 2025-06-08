@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   fetchAllCertificates,
   fetchCertificateStats,
@@ -22,6 +23,7 @@ import {
   selectRevokeError,
   selectRevokeLoading,
 } from "../../features/certificates/allCertificatesSelector";
+import { selectUserRole } from "../../features/user/userSelector";
 // Using FontAwesome icons for better compatibility
 import {
   FaFile,
@@ -38,6 +40,9 @@ import {
 
 const AllCertificatesList = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const userRole = useSelector(selectUserRole);
   const certificates = useSelector(selectAllCertificates);
   const isLoading = useSelector(selectAllCertificatesLoading);
   const error = useSelector(selectAllCertificatesError);
@@ -56,10 +61,22 @@ const AllCertificatesList = () => {
   const [showStats, setShowStats] = useState(false);
   const [revokeConfirm, setRevokeConfirm] = useState(null);
 
+  // Check if user is admin
+  const isAdmin = userRole === "admin";
+
   useEffect(() => {
-    dispatch(fetchAllCertificates(filters));
-    dispatch(fetchCertificateStats());
-  }, [dispatch]);
+    // Auto-redirect non-admin users to home page
+    if (!isAdmin) {
+      navigate("/", { replace: true });
+      return;
+    }
+
+    // Only fetch if user is admin and we're on the certificates page
+    if (location.pathname.includes('/certificates')) {
+      dispatch(fetchAllCertificates(filters));
+      dispatch(fetchCertificateStats());
+    }
+  }, [dispatch, isAdmin, navigate, location.pathname]);
 
   const handleViewCertificate = (certificate) => {
     setSelectedCertificate(certificate);
@@ -136,6 +153,31 @@ const AllCertificatesList = () => {
     return revokeLoading[certificateId] || false;
   };
 
+  // Show access denied if not admin (with auto-redirect button)
+  if (!isAdmin) {
+    return (
+      <div className="bg-[var(--primary-color)] p-4 sm:p-6 min-h-screen">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center py-12">
+            <FaFile className="w-16 h-16 text-red-500 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              Admin Access Required
+            </h3>
+            <p className="text-gray-600">
+              You need administrator privileges to manage all certificates.
+            </p>
+            <button
+              onClick={() => navigate("/")}
+              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Go to Home
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-[var(--primary-color)] p-4 sm:p-6 min-h-screen">
       <div className="max-w-7xl mx-auto">
@@ -143,8 +185,9 @@ const AllCertificatesList = () => {
         <div className="border-b pb-4 mb-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
-                All Certificates
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 flex items-center">
+                <FaFile className="w-8 h-8 mr-3 text-blue-500" />
+                All Certificates (Admin)
               </h1>
               <p className="text-gray-600 mt-2">
                 {totalCount > 0

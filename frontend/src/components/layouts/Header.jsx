@@ -63,7 +63,7 @@ const Header = () => {
             { path: '/', label: 'Home' },
             { path: '/about', label: 'About' },
             { path: '/verification', label: 'Verification' },
-            ...(userRole === "doctor" ? [{ path: '/admin', label: 'Admin' }] : [])
+            ...(userRole === "admin" ? [{ path: '/admin', label: 'Admin' }] : [])
           ].map(({ path, label }) => (
             <Link
               key={path}

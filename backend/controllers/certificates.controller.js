@@ -6,14 +6,16 @@ import crypto from "crypto";
 import { HttpAgent, Actor } from "@dfinity/agent";
 import { idlFactory } from "../services/motoko.service.js";
 
-const canisterId = "uxrrr-q7777-77774-qaaaq-cai";
+const canisterId = "3db7c-uaaaa-aaaaa-qalea-cai"; // ✅ Correct one!
 
 const client = new InferenceClient(process.env.HF_TOKEN);
-const agent = new HttpAgent({ host: "http://127.0.0.1:4943" });
-agent.fetchRootKey();
+const agent = new HttpAgent({
+  host: "https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=3db7c-uaaaa-aaaaa-qalea-cai",
+});
+// agent.fetchRootKey();
 const certificateRegistryActor = Actor.createActor(idlFactory, {
   agent,
-  canisterId: "uxrrr-q7777-77774-qaaaq-cai",
+  canisterId: canisterId,
 });
 
 // Configure Cloudinary

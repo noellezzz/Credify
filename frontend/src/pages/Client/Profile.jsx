@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { selectUser, selectUserRole } from "../../features/user/userSelector";
 import { clearUser } from "../../features/user/userSlice";
 import { Link, useNavigate } from "react-router-dom";
 import Header from "../../components/layouts/Header";
 import styles from "../../styles/Profile.jsx";
+import Loader from "../../components/layouts/Loader";
 
 const HEADER_HEIGHT = 88;
 
@@ -15,6 +16,18 @@ const Profile = () => {
   const navigate = useNavigate();
   const [selectedCert, setSelectedCert] = useState(null);
   const [tab, setTab] = useState("profile");
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return <Loader fullPage size="xl" />;
+  } 
 
   const handleLogout = () => {
     dispatch(clearUser());
@@ -46,7 +59,7 @@ const Profile = () => {
         <aside style={styles.sidebar}>
           <div style={styles.profileSection}>
             <div style={styles.avatar}>
-              {user?.name?.charAt(0)?.toUpperCase() || "U"}
+              {user?.firstname?.charAt(0)?.toUpperCase() || "U"}
             </div>
             <div style={styles.userInfo}>
               <h3 style={styles.userName}>{user?.firstname || "User"} {user?.lastname}</h3>

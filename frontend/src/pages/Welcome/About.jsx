@@ -85,56 +85,54 @@ const About = () => {
   return (
     <>
       <Header />
-      <div className="bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen pt-16">
+      <div className="bg-gradient-to-br from-[var(--primary-color)] to-[var(--tertiary-color)] min-h-screen pt-16">
         {/* Hero Section */}
         <section className="relative px-6 lg:px-8 py-20 lg:py-32">
           <div className="mx-auto max-w-7xl">
             <div className={`text-center transition-all duration-1000 ${
               isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
             }`}>
-              <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl lg:text-7xl">
+              <h1 className="text-4xl font-bold tracking-tight text-[var(--secondary-color)] sm:text-6xl lg:text-7xl">
                 About{" "}
-                <span className="text-[#00be61]">
+                <span className="text-[var(--quaternary-color)]">
                   Credify
                 </span>
               </h1>
-              <p className="mt-6 text-lg leading-8 text-gray-600 max-w-3xl mx-auto">
+              <p className="mt-6 text-lg leading-8 text-[var(--secondary-color)] max-w-3xl mx-auto">
                 We're revolutionizing credential verification through blockchain technology, 
                 making authentication secure, instant, and tamper-proof for institutions worldwide.
               </p>
             </div>
           </div>
 
-          {/* Background Decorations */}
           <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
-            <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-            <div className="absolute top-1/3 right-1/4 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-            <div className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+            <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-[var(--quaternary-color)] rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+            <div className="absolute top-1/3 right-1/4 w-72 h-72 bg-[#e6d9b8] rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+            <div className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-[var(--tertiary-color)] rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
           </div>
         </section>
 
-        {/* Mission Section */}
         <section className="py-20 px-6 lg:px-8">
           <div className="mx-auto max-w-7xl">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-6">Our Mission</h2>
-                <p className="text-lg text-gray-600 mb-6">
+                <h2 className="text-3xl font-bold text-[var(--secondary-color)] mb-6">Our Mission</h2>
+                <p className="text-lg text-[var(--secondary-color)] mb-6">
                   At Credify, we believe that credential verification should be instant, secure, and accessible to everyone. 
                   Our mission is to eliminate fraud in digital credentials while making the verification process seamless 
                   for both issuers and verifiers.
                 </p>
-                <p className="text-lg text-gray-600">
+                <p className="text-lg text-[var(--secondary-color)]">
                   By leveraging blockchain technology, we ensure that every certificate is tamper-proof and can be 
                   verified in seconds, creating a trustworthy ecosystem for digital credentials.
                 </p>
               </div>
               <div className="relative">
-                <div className="bg-white rounded-2xl shadow-xl p-8 border">
+                <div className="bg-[var(--primary-color)] rounded-2xl shadow-xl p-8 border border-[var(--quaternary-color)]">
                   <div className="text-center">
                     <div className="text-6xl mb-4">🎯</div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">Our Vision</h3>
-                    <p className="text-gray-600">
+                    <h3 className="text-xl font-semibold text-[var(--secondary-color)] mb-2">Our Vision</h3>
+                    <p className="text-[var(--secondary-color)]">
                       To become the global standard for secure credential verification, 
                       enabling trust in digital certificates worldwide.
                     </p>
@@ -145,12 +143,11 @@ const About = () => {
           </div>
         </section>
 
-        {/* Values Section */}
-        <section className="py-20 px-6 lg:px-8 bg-white/50">
+        <section className="py-20 px-6 lg:px-8 bg-[var(--primary-color)]/50">
           <div className="mx-auto max-w-7xl">
             <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Our Values</h2>
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              <h2 className="text-3xl font-bold text-[var(--secondary-color)] mb-4">Our Values</h2>
+              <p className="text-lg text-[var(--secondary-color)] max-w-2xl mx-auto">
                 These core values guide everything we do and shape how we build our platform.
               </p>
             </div>
@@ -159,26 +156,25 @@ const About = () => {
               {values.map((value, index) => (
                 <div
                   key={value.id}
-                  className="group relative bg-white rounded-2xl p-6 shadow-lg border hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
+                  className="group relative bg-[var(--primary-color)] rounded-2xl p-6 shadow-lg border border-[var(--quaternary-color)] hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${value.color} flex items-center justify-center text-white text-xl mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                  <div className="w-12 h-12 rounded-xl bg-[var(--secondary-color)] flex items-center justify-center text-[var(--primary-color)] text-xl mb-4 group-hover:scale-110 transition-transform duration-300">
                     {value.icon}
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-3">{value.title}</h3>
-                  <p className="text-gray-600 leading-relaxed">{value.description}</p>
+                  <h3 className="text-xl font-semibold text-[var(--secondary-color)] mb-3">{value.title}</h3>
+                  <p className="text-[var(--secondary-color)] leading-relaxed">{value.description}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Team Section */}
         <section className="py-20 px-6 lg:px-8">
           <div className="mx-auto max-w-7xl">
             <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Meet Our Team</h2>
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              <h2 className="text-3xl font-bold text-[var(--secondary-color)] mb-4">Meet Our Team</h2>
+              <p className="text-lg text-[var(--secondary-color)] max-w-2xl mx-auto">
                 The passionate individuals behind Credify, working together to revolutionize credential verification.
               </p>
             </div>
@@ -187,22 +183,22 @@ const About = () => {
               {team.map((member, index) => (
                 <div
                   key={index}
-                  className="group bg-white rounded-2xl p-4 shadow-lg border hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
+                  className="group bg-[var(--primary-color)] rounded-2xl p-4 shadow-lg border border-[var(--quaternary-color)] hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   <div className="text-center">
                     <div className="text-4xl mb-3 group-hover:scale-110 transition-transform duration-300">
                       {member.image}
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">{member.name}</h3>
-                    <p className="text-blue-600 font-medium mb-2 text-sm">{member.role}</p>
-                    <p className="text-xs text-gray-500 mb-3">{member.expertise}</p>
-                    <p className="text-gray-600 text-xs leading-relaxed mb-3">{member.bio}</p>
+                    <h3 className="text-lg font-semibold text-[var(--secondary-color)] mb-1">{member.name}</h3>
+                    <p className="text-[var(--quaternary-color)] font-medium mb-2 text-sm">{member.role}</p>
+                    <p className="text-xs text-[var(--quaternary-color)] mb-3">{member.expertise}</p>
+                    <p className="text-[var(--secondary-color)] text-xs leading-relaxed mb-3">{member.bio}</p>
                     <a
                       href={`https://github.com/${member.github}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center text-xs text-blue-600 hover:text-blue-700 font-medium"
+                      className="inline-flex items-center text-xs text-[var(--secondary-color)] hover:text-[var(--quaternary-color)] font-medium"
                     >
                       @{member.github}
                       <svg className="w-3 h-3 ml-1" fill="currentColor" viewBox="0 0 20 20">
@@ -216,12 +212,11 @@ const About = () => {
           </div>
         </section>
 
-        {/* Technology Section */}
-        <section className="py-20 px-6 lg:px-8 bg-gray-900">
+        <section className="py-20 px-6 lg:px-8 bg-[var(--secondary-color)]">
           <div className="mx-auto max-w-7xl">
             <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold text-white mb-4">Built with Modern Technology</h2>
-              <p className="text-lg text-gray-300 max-w-2xl mx-auto">
+              <h2 className="text-3xl font-bold text-[var(--primary-color)] mb-4">Built with Modern Technology</h2>
+              <p className="text-lg text-[var(--tertiary-color)] max-w-2xl mx-auto">
                 Our platform uses cutting-edge technologies to ensure security, scalability, and performance.
               </p>
             </div>
@@ -241,15 +236,15 @@ const About = () => {
                   <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">
                     {tech.icon}
                   </div>
-                  <h3 className="text-xl font-semibold text-white mb-2">{tech.name}</h3>
-                  <p className="text-gray-300">{tech.desc}</p>
+                  <h3 className="text-xl font-semibold text-[var(--primary-color)] mb-2">{tech.name}</h3>
+                  <p className="text-[var(--tertiary-color)]">{tech.desc}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        <style jsx>{`
+ <style jsx>{`
           @keyframes blob {
             0% { transform: translate(0px, 0px) scale(1); }
             33% { transform: translate(30px, -50px) scale(1.1); }
@@ -266,7 +261,7 @@ const About = () => {
             animation-delay: 4s;
           }
         `}</style>
-      </div>
+        </div>
     </>
   );
 };

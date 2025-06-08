@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import {
   fetchUsers,
   fetchUserStats,
@@ -21,6 +22,7 @@ import {
   selectDeleteLoading,
   selectFilteredUsers,
 } from "../../features/user/userManagementSelector";
+import { selectUserRole, selectUserId } from "../../features/user/userSelector";
 import {
   FaUsers,
   FaUserShield,
@@ -40,6 +42,9 @@ import {
 
 const UserManagement = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const userRole = useSelector(selectUserRole);
+  const currentUserId = useSelector(selectUserId);
   const users = useSelector(selectUsers);
   const isLoading = useSelector(selectUsersLoading);
   const error = useSelector(selectUsersError);
@@ -60,10 +65,20 @@ const UserManagement = () => {
     selectFilteredUsers(searchTerm, roleFilter, statusFilter)
   );
 
+  // Check if user is admin
+  const isAdmin = userRole === "admin";
+
   useEffect(() => {
+    // Auto-redirect non-admin users to home page
+    if (!isAdmin) {
+      navigate('/', { replace: true });
+      return;
+    }
+    
+    // Only fetch if user is admin
     dispatch(fetchUsers());
     dispatch(fetchUserStats());
-  }, [dispatch]);
+  }, [dispatch, isAdmin, navigate]);
 
   const handleRoleUpdate = async (userId, newRole) => {
     try {
@@ -157,6 +172,36 @@ const UserManagement = () => {
   const isDeletingUser = (userId) => {
     return deleteLoading[userId] || false;
   };
+
+  // Prevent actions on self
+  const canModifyUser = (user) => {
+    return user.auth_id !== currentUserId;
+  };
+
+  // Redirect or show access denied if not admin
+  if (!isAdmin) {
+    return (
+      <div className="bg-[var(--primary-color)] p-4 sm:p-6 min-h-screen">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center py-12">
+            <FaUsers className="w-16 h-16 text-red-500 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              Access Denied
+            </h3>
+            <p className="text-gray-600">
+              You need administrator privileges to access user management.
+            </p>
+            <button
+              onClick={() => navigate('/')}
+              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Go to Home
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-[var(--primary-color)] p-4 sm:p-6 min-h-screen">
@@ -450,8 +495,9 @@ const UserManagement = () => {
                           <div className="flex gap-2">
                             <button
                               onClick={() => setEditingUser(user)}
-                              disabled={isUpdatingThis || isDeletingThis}
+                              disabled={!canModifyUser(user) || isUpdatingThis || isDeletingThis}
                               className="text-blue-600 hover:text-blue-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                              title={!canModifyUser(user) ? "Cannot modify your own account" : "Edit user"}
                             >
                               {isUpdatingThis ? (
                                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
@@ -461,8 +507,9 @@ const UserManagement = () => {
                             </button>
                             <button
                               onClick={() => setDeleteConfirm(user)}
-                              disabled={isUpdatingThis || isDeletingThis}
+                              disabled={!canModifyUser(user) || isUpdatingThis || isDeletingThis}
                               className="text-red-600 hover:text-red-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                              title={!canModifyUser(user) ? "Cannot delete your own account" : "Delete user"}
                             >
                               {isDeletingThis ? (
                                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>

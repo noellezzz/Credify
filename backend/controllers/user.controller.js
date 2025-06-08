@@ -39,7 +39,7 @@ export const updateUserRole = async (req, res) => {
 
     // Validate role (you can customize these based on your app's roles)
     //raj pakibago n lng ng roles
-    const validRoles = ["admin", "user", "moderator"];
+    const validRoles = ["admin", "client", "verifier"];
     if (!validRoles.includes(role)) {
       return res.status(400).json({
         error: `Invalid role. Must be one of: ${validRoles.join(", ")}`,

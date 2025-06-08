@@ -2,11 +2,11 @@ import React from "react";
 
 const FeaturesSection = ({ features, activeCard, setActiveCard }) => {
   return (
-    <div className="py-20 bg-white">
+    <div className="py-20 bg-[var(--primary-color)]">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">Why Choose Credify?</h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <h2 className="text-4xl font-bold text-[var(--secondary-color)] mb-4">Why Choose Credify?</h2>
+          <p className="text-xl text-[var(--quaternary-color)] max-w-2xl mx-auto">
             Experience the next generation of credential verification with cutting-edge technology
           </p>
         </div>
@@ -25,10 +25,10 @@ const FeaturesSection = ({ features, activeCard, setActiveCard }) => {
                 <div className="text-4xl mb-4 transform group-hover:scale-110 transition-transform">
                   {feature.icon}
                 </div>
-                <h3 className="text-xl font-bold text-white mb-3">{feature.title}</h3>
-                <p className="text-white opacity-90 text-sm mb-4">{feature.description}</p>
+                <h3 className="text-xl font-bold text-[var(--tertiary-color)] mb-3">{feature.title}</h3>
+                <p className="text-[var(--tertiary-color)] opacity-90 text-sm mb-4">{feature.description}</p>
                 {activeCard === feature.id && (
-                  <div className="text-white text-xs opacity-80 border-t border-white/20 pt-4 animate-fadeIn">
+                  <div className="text-[var(--secondary-color)] text-xs opacity-80 border-t border-white/20 pt-4 animate-fadeIn">
                     {feature.details}
                   </div>
                 )}

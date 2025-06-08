@@ -86,10 +86,21 @@ const Index = () => {
 return (
   <>
     <Header />
-    <div className="bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen pt-16">
+    <div
+      className="min-h-screen pt-16"
+      style={{
+        background: "linear-gradient(135deg, var(--primary-color) 0%, #e6d9b8 100%)"
+      }}
+    >
       <HeroSection isVisible={isVisible} />
       <FeaturesSection
-        features={features}
+        features={features.map((feature, i) => ({
+          ...feature,
+          // Alternate between palette and complementary colors for cards
+          color: i % 2 === 0
+            ? "from-[var(--secondary-color)] to-[#b8a47e]"
+            : "from-[var(--quaternary-color)] to-[#f7e7d3]"
+        }))}
         activeCard={activeCard}
         setActiveCard={setActiveCard}
       />
@@ -123,6 +134,5 @@ return (
     </div>
   </>
 );
-};
-
+}
 export default Index;

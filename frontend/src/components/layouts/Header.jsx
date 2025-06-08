@@ -58,11 +58,11 @@ const Header = () => {
         <div></div>
 
         {/* Center section - Navigation */}
-        <nav className="flex gap-6 xl:gap-8 items-center justify-center">
+         <nav className="flex gap-6 xl:gap-8 items-center justify-center">
           {[
             { path: '/', label: 'Home' },
             { path: '/about', label: 'About' },
-            { path: '/verification', label: 'Verification' },
+            ...(isLoggedIn ? [{ path: '/verification', label: 'Verification' }] : []),
             ...(userRole === "admin" ? [{ path: '/admin', label: 'Admin' }] : [])
           ].map(({ path, label }) => (
             <Link

@@ -4,14 +4,24 @@ import HeroSection from "../../components/Welcome/HeroSection";
 import FeaturesSection from "../../components/Welcome/FeaturesSection";
 import DevelopersSection from "../../components/Welcome/DevelopersSection";
 import CTASection from "../../components/Welcome/CTASection";
+import Loader from "../../components/layouts/Loader";
 
 const Index = () => {
   const [activeCard, setActiveCard] = useState(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     setIsVisible(true);
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
+    return () => clearTimeout(timer);
   }, []);
+
+  if (isLoading) {
+    return <Loader fullPage size="xl" />;
+  }
 
   const features = [
     {

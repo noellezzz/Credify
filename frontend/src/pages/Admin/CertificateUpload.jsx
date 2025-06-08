@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import {
   uploadCertificateBase64,
   clearStatus,
@@ -10,15 +11,18 @@ import {
   selectSuccessMessage,
   selectUploadedImageUrl,
 } from "../../features/certificates/certificatesSelector";
-import { selectUserId } from "../../features/user/userSelector";
+import { selectUserId, selectUserRole } from "../../features/user/userSelector";
+import { FaUpload, FaLock } from "react-icons/fa";
 
 const CertificateUpload = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const isLoading = useSelector(selectIsLoading);
   const error = useSelector(selectError);
   const successMessage = useSelector(selectSuccessMessage);
   const uploadedImageUrl = useSelector(selectUploadedImageUrl);
   const userId = useSelector(selectUserId);
+  const userRole = useSelector(selectUserRole);
 
   const [file, setFile] = useState(null);
 
@@ -54,15 +58,49 @@ const CertificateUpload = () => {
     }
   };
 
+  // Check if user is admin
+  const isAdmin = userRole === "admin";
+
+  useEffect(() => {
+    // Auto-redirect non-admin users to home page
+    if (!isAdmin) {
+      navigate("/", { replace: true });
+    }
+  }, [isAdmin, navigate]);
+
+  // Show access denied if not admin
+  if (!isAdmin) {
+    return (
+      <div className="bg-[var(--primary-color)] p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6 min-h-screen max-w-xl mx-auto">
+        <div className="text-center py-12">
+          <FaLock className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            Admin Access Required
+          </h3>
+          <p className="text-gray-600 mb-4">
+            Only administrators can upload certificates through this interface.
+          </p>
+          <button
+            onClick={() => navigate("/")}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Go to Home
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-[var(--primary-color)] p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6 min-h-screen max-w-xl mx-auto">
       {/* Header */}
       <div className="border-b pb-3 sm:pb-4">
-        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 text-center">
-          Upload Certificate
+        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 text-center flex items-center justify-center">
+          <FaUpload className="w-6 h-6 mr-3" />
+          Admin Certificate Upload
         </h1>
         <p className="text-sm sm:text-base text-gray-600 mt-1 text-center">
-          Upload your certificate file below
+          Upload certificates as an administrator
         </p>
       </div>
 

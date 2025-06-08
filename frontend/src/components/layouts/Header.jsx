@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   selectIsLoggedIn,
   selectUser,
@@ -15,6 +15,7 @@ const Header = () => {
   const user = useSelector(selectUser);
   const dispatch = useDispatch();
   const location = useLocation();
+  const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNavbarVisible, setIsNavbarVisible] = useState(true);
 
@@ -22,6 +23,7 @@ const Header = () => {
   const handleLogout = () => {
     dispatch(clearUser());
     setIsMobileMenuOpen(false);
+    navigate('/');
   };
 
   const toggleMobileMenu = () => {

@@ -6,7 +6,7 @@ import crypto from "crypto";
 import { HttpAgent, Actor } from "@dfinity/agent";
 import { idlFactory } from "../services/motoko.service.js";
 
-const canisterId = "3db7c-uaaaa-aaaaa-qalea-cai"; // ✅ Correct one!
+const canisterId = "3db7c-uaaaa-aaaaa-qalea-cai"; 
 
 const client = new InferenceClient(process.env.HF_TOKEN);
 const agent = new HttpAgent({
@@ -640,6 +640,93 @@ export const getRevokedCertificates = async (req, res) => {
     });
   } catch (error) {
     console.error("getRevokedCertificates error:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// Add this function to your existing certificates.controller.js
+
+export const getUserCertificatesByNameAndId = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { firstName, lastName } = req.query;
+    const { limit = 50, offset = 0 } = req.query;
+
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+
+    // Build the query to find certificates by user_id OR by name match in OCR content
+    let query = supabaseAdmin
+      .from("certificates")
+      .select("*")
+      .eq("user_id", userId);
+
+    // If name is provided, also search in OCR content
+    if (firstName && lastName) {
+      const fullName = `${firstName} ${lastName}`;
+      
+      // Create a more complex query that searches for user_id OR name in OCR content
+      const { data: certificatesByUserId, error: userIdError } = await query
+        .order("created_at", { ascending: false })
+        .range(offset, offset + limit - 1);
+
+      if (userIdError) {
+        console.error("Fetch certificates by user ID error:", userIdError);
+        return res.status(500).json({ error: "Failed to fetch certificates" });
+      }
+
+      // Also search for certificates containing the user's name in OCR content
+      const { data: certificatesByName, error: nameError } = await supabaseAdmin
+        .from("certificates")
+        .select("*")
+        .or(`ocr_content.ilike.%${firstName}%,ocr_content.ilike.%${lastName}%,ocr_content.ilike.%${fullName}%`)
+        .order("created_at", { ascending: false })
+        .range(offset, offset + limit - 1);
+
+      if (nameError) {
+        console.error("Fetch certificates by name error:", nameError);
+        // Don't fail the request, just return certificates by user ID
+      }
+
+      // Combine and deduplicate results
+      const allCertificates = [...(certificatesByUserId || [])];
+      
+      if (certificatesByName) {
+        certificatesByName.forEach(cert => {
+          if (!allCertificates.find(existing => existing.id === cert.id)) {
+            allCertificates.push(cert);
+          }
+        });
+      }
+
+      // Sort by created_at descending
+      allCertificates.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+      return res.json({
+        message: "Certificates retrieved successfully",
+        certificates: allCertificates,
+        count: allCertificates.length,
+      });
+    }
+
+    // If no name provided, just use the existing logic
+    const { data: certificates, error: fetchError } = await query
+      .order("created_at", { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (fetchError) {
+      console.error("Fetch certificates error:", fetchError);
+      return res.status(500).json({ error: "Failed to fetch certificates" });
+    }
+
+    return res.json({
+      message: "Certificates retrieved successfully",
+      certificates,
+      count: certificates.length,
+    });
+  } catch (error) {
+    console.error("getUserCertificatesByNameAndId error:", error);
     return res.status(500).json({ error: "Internal server error" });
   }
 };

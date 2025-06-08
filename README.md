@@ -231,11 +231,11 @@ src/
 
 ## 👥 Team
 
-- **Rajesh Respall** - Full Stack Developer ([@rajrespall](https://github.com/rajrespall))
-- **Diana Carreon** - UI/UX Lead Designer ([@dayaannaa](https://github.com/dayaannaa))
-- **Mark Bartolome** - UI/UX Assistant ([@sadvoidhours](https://github.com/sadvoidhours))
-- **Miguel Dacumos** - Backend Engineer ([@noellezzz](https://github.com/noellezzz))
-- **Dr. Rico Santos** - Project Advisor & Mentor ([@dimitrio25](https://github.com/dimitrio25))
+- **Rajesh T. Respall** - Full Stack Developer ([@rajrespall](https://github.com/rajrespall))
+- **Diana Marie N. Carreon** - UI/UX Lead Designer ([@dayaannaa](https://github.com/dayaannaa))
+- **Mark Al Rayn D. Bartolome** - UI/UX Assistant ([@sadvoidhours](https://github.com/sadvoidhours))
+- **Angelo Miguel S.Dacumos** - Full Stack Developer ([@noellezzz](https://github.com/noellezzz))
+- **Dr. Rico S. Santos** - Project Advisor & Mentor ([@dimitrio25](https://github.com/dimitrio25))
 
 ## 🔮 Technology Stack
 

@@ -193,7 +193,7 @@ const Sidebar = () => {
       {/* Mobile Overlay */}
       {isMobileMenuOpen && isMobile && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-[55] lg:hidden transition-opacity duration-300"
+          className="fixed inset-0 bg-black/25 bg-opacity-50 z-[55] lg:hidden transition-opacity duration-300"
           style={{ top: 0, left: 0, right: 0, bottom: 0 }}
           onClick={closeMobileMenu}
         />

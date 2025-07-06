@@ -1,4 +1,6 @@
-import { InferenceClient } from "@huggingface/inference";
+import { ImageAnnotatorClient } from '@google-cloud/vision';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { supabaseAdmin } from "../services/supabase.service.js";
 import cloudinary from "cloudinary";
 import crypto from "crypto";
@@ -8,7 +10,12 @@ import { idlFactory } from "../services/motoko.service.js";
 
 const canisterId = "3db7c-uaaaa-aaaaa-qalea-cai"; 
 
-const client = new InferenceClient(process.env.HF_TOKEN);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+// Replace HuggingFace client with Google Vision client
+const visionClient = new ImageAnnotatorClient({
+  keyFilename: path.join(__dirname, '../google-credentials.json')
+});
 const agent = new HttpAgent({
   host: "https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=3db7c-uaaaa-aaaaa-qalea-cai",
 });
@@ -24,6 +31,57 @@ cloudinary.v2.config({
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
+
+// Google Cloud Vision OCR function for URLs
+const extractTextWithVision = async (imageUrl) => {
+  try {
+    console.log("Extracting text from image:", imageUrl);
+    
+    // Use Google Vision API to detect text
+    const [result] = await visionClient.textDetection(imageUrl);
+    const detections = result.textAnnotations;
+    
+    if (detections && detections.length > 0) {
+      // Return the full text (first annotation contains all detected text)
+      const extractedText = detections[0].description;
+      console.log("OCR extraction successful, text length:", extractedText.length);
+      return extractedText;
+    } else {
+      console.log("No text detected in image");
+      return "No text detected in the image";
+    }
+  } catch (error) {
+    console.error("Google Vision OCR error:", error);
+    throw new Error(`OCR extraction failed: ${error.message}`);
+  }
+};
+
+// Alternative function for base64 images
+const extractTextFromBase64 = async (base64String) => {
+  try {
+    // Remove data URL prefix if present
+    const base64Data = base64String.replace(/^data:image\/[a-z]+;base64,/, '');
+    
+    const request = {
+      image: {
+        content: base64Data
+      },
+      features: [{ type: 'TEXT_DETECTION' }]
+    };
+
+    const [result] = await visionClient.annotateImage(request);
+    const textAnnotations = result.textAnnotations;
+    
+    if (textAnnotations && textAnnotations.length > 0) {
+      return textAnnotations[0].description;
+    } else {
+      return "No text detected in the image";
+    }
+  } catch (error) {
+    console.error("Google Vision OCR error:", error);
+    throw new Error(`OCR extraction failed: ${error.message}`);
+  }
+};
 
 export const checkConnection = async () => {
   try {
@@ -214,32 +272,20 @@ export const uploadBase64 = async (req, res) => {
 
       console.log("OCR Image URL:", ocrImageUrl);
 
-      // Extract text content using OCR with improved prompts
-      const ocrPrompt = isPdf
-        ? `Extract and return only the text content from this PDF document. Preserve the structure and formatting as much as possible. Return the text as plain text without any JSON structure or additional commentary.`
-        : `Extract and return only the text content from this image/certificate. Preserve the structure and formatting as much as possible. Return the text as plain text without any JSON structure or additional commentary.`;
+      // Replace HuggingFace OCR with Google Cloud Vision
+      let ocrContent;
+      try {
+        // Using URL approach (recommended for images already uploaded)
+        ocrContent = await extractTextWithVision(ocrImageUrl);
+        
+        // Alternative: Use base64 approach for direct processing
+        // ocrContent = await extractTextFromBase64(fileData);
+        
+      } catch (ocrError) {
+        console.error("OCR extraction failed:", ocrError);
+        ocrContent = "OCR extraction failed: " + ocrError.message;
+      }
 
-      const chatCompletion = await client.chatCompletion({
-        provider: "fireworks-ai",
-        model: "Qwen/Qwen2.5-VL-32B-Instruct",
-        messages: [
-          {
-            role: "user",
-            content: [
-              {
-                type: "text",
-                text: ocrPrompt,
-              },
-              {
-                type: "image_url",
-                image_url: { url: ocrImageUrl },
-              },
-            ],
-          },
-        ],
-      });
-
-      const ocrContent = chatCompletion.choices[0].message.content;
       const contentHash = generateContentHash(ocrContent);
 
       // Save complete record to certificates table
@@ -643,8 +689,6 @@ export const getRevokedCertificates = async (req, res) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 };
-
-// Add this function to your existing certificates.controller.js
 
 export const getUserCertificatesByNameAndId = async (req, res) => {
   try {

@@ -1,5 +1,9 @@
 .env
-backend/.env
-*.envgoogle-credentials.json
+*.env
 google-credentials.json
-*.json # Optional: ignore all JSON files
+*.json
+.venv
+.git
+.gitignore
+.gitignore
+node_modules

@@ -14,6 +14,8 @@ import UserManagement from "./pages/Admin/UserManagement";
 import CertificateVerification from "./pages/Welcome/Verification";
 import Profile from "./pages/Client/Profile";
 import About from "./pages/Welcome/About";
+import SchoolRegister from "./pages/SchoolRegister";
+import SchoolReview from "./pages/Admin/SchoolManagement";
 
 const App = () => {
   return (
@@ -22,20 +24,24 @@ const App = () => {
       <Route path="/verification" element={<CertificateVerification />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/about" element={<About />} />
-      
+
       {/* Main layout for the application */}
 
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/register/as-school" element={<SchoolRegister />} />
 
       <Route path="/admin" element={<Sidebar />}>
-
         {/* Index route - this will be the default when /admin is accessed */}
         <Route index element={<CertificateUpload />} />
+        <Route path="schools" element={<SchoolReview />} />
         <Route path="certificates" element={<CertificateUpload />} />
         <Route path="certificates/all" element={<AllCertificatesList />} />
-        <Route path="certificates/revoked" element={<RevokedCertificatesList/>} />
-        <Route path="certificates/users" element={<UserManagement/>} />
+        <Route
+          path="certificates/revoked"
+          element={<RevokedCertificatesList />}
+        />
+        <Route path="certificates/users" element={<UserManagement />} />
       </Route>
     </Routes>
   );

@@ -28,79 +28,95 @@ const Login = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const isEmailValid = emailRegex.test(formData.email);
     const isPasswordValid = formData.password.length >= 6;
-    
+
     setIsFormValid(isEmailValid && isPasswordValid);
-    
+
     // Clear errors when user starts typing
-    if (errors.email && formData.email) setErrors(prev => ({ ...prev, email: '' }));
-    if (errors.password && formData.password) setErrors(prev => ({ ...prev, password: '' }));
+    if (errors.email && formData.email)
+      setErrors((prev) => ({ ...prev, email: "" }));
+    if (errors.password && formData.password)
+      setErrors((prev) => ({ ...prev, password: "" }));
   }, [formData, errors.email, errors.password]);
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.email) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email';
+      newErrors.email = "Please enter a valid email";
     }
-    
+
     if (!formData.password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = "Password is required";
     } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+      newErrors.password = "Password must be at least 6 characters";
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+  const checkIfPending = (status) => {
+    if (status === "Pending") return true;
+    return false;
+  };
+
   const handleSubmit = async (e) => {
-  e?.preventDefault();
-  
-  if (!validateForm() || isLoading) return;
-  
-  setIsLoading(true);
-  
-  try {
-    const res = await axios.post("/auth/login", formData);
-    if (res.data.message === "Success") {
-      await Swal.fire({
-        title: "Welcome Back!",
-        text: "Login successful. Redirecting...",
-        icon: "success",
-        timer: 1500,
-        showConfirmButton: false,
-        backdrop: 'rgba(0,0,0,0.8)',
-        customClass: {
-          popup: 'animate__animated animate__fadeInDown'
+    e?.preventDefault();
+
+    if (!validateForm() || isLoading) return;
+
+    setIsLoading(true);
+
+    try {
+      const res = await axios.post("/auth/login", formData);
+      if (res.data.message === "Success") {
+        const isPending = checkIfPending(res.data.parsedUser.status);
+        if (isPending) {
+          Swal.fire({
+            title: "Your information has yet to be verified by our system.",
+            text: "Please wait and try again later",
+            icon: "info",
+          });
+          return;
         }
-      });
-      
-      dispatch(setUser(res.data.parsedUser));
-      
-      // Check user role and redirect accordingly
-      if (res.data.parsedUser.role === 'admin') {
-        navigate("/admin", { replace: true });
-      } else {
-        navigate("/", { replace: true });
+        await Swal.fire({
+          title: "Welcome Back!",
+          text: "Login successful. Redirecting...",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+          backdrop: "rgba(0,0,0,0.8)",
+          customClass: {
+            popup: "animate__animated animate__fadeInDown",
+          },
+        });
+
+        dispatch(setUser(res.data.parsedUser));
+
+        // Check user role and redirect accordingly
+        if (res.data.parsedUser.role === "admin") {
+          navigate("/admin", { replace: true });
+        } else {
+          navigate("/", { replace: true });
+        }
       }
-    }
-  } catch (e) {
-    setIsLoading(false);
-      
+    } catch (e) {
+      setIsLoading(false);
+
       if (e.response?.data?.message === "invalid_credentials") {
         Swal.fire({
           title: "Invalid Credentials",
           text: "Please check your email and password.",
           icon: "error",
           confirmButtonText: "Try Again",
-          backdrop: 'rgba(0,0,0,0.8)',
+          backdrop: "rgba(0,0,0,0.8)",
           customClass: {
-            popup: 'animate__animated animate__shakeX'
-          }
+            popup: "animate__animated animate__shakeX",
+          },
         });
-        setErrors({ password: 'Invalid email or password' });
+        setErrors({ password: "Invalid email or password" });
       } else if (e.response?.data?.message === "email_not_confirmed") {
         Swal.fire({
           title: "Account Unverified",
@@ -109,7 +125,7 @@ const Login = () => {
           confirmButtonText: "Resend Verification",
           showCancelButton: true,
           cancelButtonText: "OK",
-          backdrop: 'rgba(0,0,0,0.8)'
+          backdrop: "rgba(0,0,0,0.8)",
         }).then((result) => {
           if (result.isConfirmed) {
             // Add resend verification logic here
@@ -121,14 +137,14 @@ const Login = () => {
           title: "Connection Error",
           text: "Unable to connect to server. Please try again.",
           icon: "error",
-          backdrop: 'rgba(0,0,0,0.8)'
+          backdrop: "rgba(0,0,0,0.8)",
         });
       }
     }
   };
 
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && isFormValid && !isLoading) {
+    if (e.key === "Enter" && isFormValid && !isLoading) {
       handleSubmit(e);
     }
   };
@@ -153,7 +169,6 @@ const Login = () => {
 
       <div className="h-full w-full flex items-center justify-center lg:justify-center px-4 lg:px-8">
         <div className="relative z-10 w-full max-w-sm sm:max-w-md lg:max-w-lg min-h-[600px] lg:h-[600px] bg-[var(--tertiary-color)] rounded-2xl lg:rounded-4xl header-shadow flex flex-col items-center p-6 sm:p-8 lg:p-12 transform transition-all duration-500 hover:scale-[1.02] animate__animated animate__fadeInUp">
-          
           {/* Loading Overlay */}
           {isLoading && (
             <div className="absolute inset-0 bg-white/80 backdrop-blur-sm rounded-2xl lg:rounded-4xl flex items-center justify-center z-50">
@@ -179,7 +194,11 @@ const Login = () => {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="flex flex-col flex-grow w-full justify-center items-center space-y-4 lg:space-y-6" onKeyPress={handleKeyPress}>
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-col flex-grow w-full justify-center items-center space-y-4 lg:space-y-6"
+            onKeyPress={handleKeyPress}
+          >
             <div className="w-full transform transition-all duration-300 hover:translate-y-[-2px]">
               <TextInput
                 maxWidth
@@ -195,7 +214,7 @@ const Login = () => {
                 className="transition-all duration-300 focus:scale-[1.02]"
               />
             </div>
-            
+
             <div className="w-full transform transition-all duration-300 hover:translate-y-[-2px] relative">
               <TextInput
                 maxWidth
@@ -219,13 +238,38 @@ const Login = () => {
                 tabIndex={-1}
               >
                 {showPassword ? (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
+                    />
                   </svg>
                 ) : (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                    />
                   </svg>
                 )}
               </button>
@@ -244,9 +288,9 @@ const Login = () => {
                 label={isLoading ? "Signing In..." : "Login"}
                 onClick={handleSubmit}
                 className={`w-full sm:w-auto transition-all duration-300 hover:scale-105 ${
-                  isFormValid && !isLoading 
-                    ? 'hover:shadow-lg transform hover:translate-y-[-1px]' 
-                    : 'opacity-50 cursor-not-allowed'
+                  isFormValid && !isLoading
+                    ? "hover:shadow-lg transform hover:translate-y-[-1px]"
+                    : "opacity-50 cursor-not-allowed"
                 }`}
                 disabled={!isFormValid || isLoading}
               />

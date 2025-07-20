@@ -6,6 +6,11 @@ import allCertificatesReducer from "../features/certificates/allCertificatesSlic
 import revokedCertificatesReducer from "../features/certificates/revokedCertificatesSlice";
 import userManagementReducer from "../features/user/userManagementSlice";
 import verificationReducer from "../features/certificates/verificationSlice";
+import schoolReducer from "../features/school/schoolSlice";
+import organizationReducer from "../features/organization/organizationSlice";
+import organizationAuthReducer from "../features/organizationAuth/organizationAuthSlice";
+import eventsReducer from "../features/events/eventsSlice";
+import verificationRequestsReducer from "../features/verification/verificationSlice";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import {
@@ -25,12 +30,17 @@ const rootReducer = combineReducers({
   revokedCertificates: revokedCertificatesReducer,
   userManagement: userManagementReducer,
   verification: verificationReducer,
+  school: schoolReducer,
+  organization: organizationReducer,
+  organizationAuth: organizationAuthReducer,
+  events: eventsReducer,
+  verificationRequests: verificationRequestsReducer,
 });
 
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["user"], // persist only user slice
+  whitelist: ["user", "organizationAuth"], // persist user and organizationAuth slices
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

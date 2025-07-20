@@ -1,6 +1,6 @@
 import React from "react";
 
-const PrimeButton = ({ label, secondary, onClick }) => {
+const PrimeButton = ({ children, label, secondary, onClick }) => {
   return (
     <button
       onClick={onClick}
@@ -8,7 +8,7 @@ const PrimeButton = ({ label, secondary, onClick }) => {
         secondary ? "text-black border" : "bg-[#222831] text-white"
       }`}
     >
-      {label}
+      {children || label}
     </button>
   );
 };

@@ -11,3 +11,4 @@ venv
 .env.production
 .git 
 
+.development-docs

@@ -73,12 +73,12 @@ const About = () => {
       github: "noellezzz"
     },
     {
-      name: "Dr. Rico Santos",
-      role: "Project Advisor & Mentor",
-      expertise: "Secure Software Development, Technical Project Guidance",
+      name: "Espinosa, Derick James M.",
+      role: "Backend Engineer",
+      expertise: "System Architecture, API Development",
       image: "👨‍🔒",
-      bio: "Providing strategic oversight and technical mentorship for blockchain-based credential systems",
-      github: "dimitrio25"
+      bio: "Experienced in designing scalable backend systems and ensuring data integrity.",
+      github: "deJames-13"
     }
   ];
 

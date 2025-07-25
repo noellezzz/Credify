@@ -72,15 +72,15 @@ const Login = () => {
     try {
       const res = await axios.post("/auth/login", formData);
       if (res.data.message === "Success") {
-        const isPending = checkIfPending(res.data.parsedUser.status);
-        if (isPending) {
-          Swal.fire({
-            title: "Your information has yet to be verified by our system.",
-            text: "Please wait and try again later",
-            icon: "info",
-          });
-          return;
-        }
+        // const isPending = checkIfPending(res.data.parsedUser.status);
+        // if (isPending) {
+        //   Swal.fire({
+        //     title: "Your information has yet to be verified by our system.",
+        //     text: "Please wait and try again later",
+        //     icon: "info",
+        //   });
+        //   return;
+        // }
         await Swal.fire({
           title: "Welcome Back!",
           text: "Login successful. Redirecting...",

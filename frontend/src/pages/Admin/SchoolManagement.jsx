@@ -98,7 +98,7 @@ const SchoolReview = () => {
       cancelButtonText: "Cancel",
     }).then((result) => {
       if (result.isConfirmed) {
-        handleStatusUpdate(schoolId, "Verified");
+        handleStatusUpdate(schoolId, "Verified", null);
       }
     });
   };

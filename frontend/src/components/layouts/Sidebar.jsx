@@ -11,6 +11,7 @@ import {
   LuMenu,
   LuX,
   LuArchiveRestore,
+  LuSchool,
 } from "react-icons/lu";
 import Logo from "../../assets/Credify.png";
 
@@ -262,6 +263,13 @@ const Sidebar = () => {
                 to="/admin/certificates/users"
                 Icon={LuUsers}
                 text="User Management"
+                onClick={closeMobileMenu}
+                isMobile={isMobile}
+              />
+              <SidebarLink
+                to="/admin/schools"
+                Icon={LuSchool}
+                text="Verify Schools"
                 onClick={closeMobileMenu}
                 isMobile={isMobile}
               />

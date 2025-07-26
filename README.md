@@ -1,6 +1,6 @@
-# Credify - Blockchain-Based Certificate Verification System
+# Credify - Blockchain-Based Certificate Verification System for School Usage
 
-A secure, tamper-proof certificate verification platform that leverages blockchain technology, AI-powered OCR, and modern web technologies to provide instant credential verification.
+A secure, tamper-proof certificate verification platform that leverages blockchain technology, AI-powered OCR, and modern web technologies to provide instant credential verification specifically for school certificates for ease of use.
 
 [![Credify Logo](https://res.cloudinary.com/dbmphjpzw/image/upload/v1749378614/Credify_1_bahhig.png)](https://credify-marks-projects-4471a6f6.vercel.app)
 
@@ -14,6 +14,8 @@ A secure, tamper-proof certificate verification platform that leverages blockcha
 - **Real-time Statistics**: Live tracking of verification metrics
 - **Multi-format Support**: Support for both image and PDF certificates
 - **Admin Dashboard**: Complete certificate management system
+- **School Dashboard**: Certificate upload
+
 
 ## 🏗️ Architecture
 
@@ -71,7 +73,7 @@ A secure, tamper-proof certificate verification platform that leverages blockcha
    CLOUDINARY_CLOUD_NAME=your_cloudinary_name
    CLOUDINARY_API_KEY=your_cloudinary_key
    CLOUDINARY_API_SECRET=your_cloudinary_secret
-   HF_TOKEN=your_hf_token
+   GOOGLE_APPLICATION_CREDENTIALS="./google-credentials.json"
    ```
 
 4. **Set up Frontend**

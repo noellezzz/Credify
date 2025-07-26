@@ -16,8 +16,12 @@ import Profile from "./pages/Client/Profile";
 import About from "./pages/Welcome/About";
 import SchoolRegister from "./pages/SchoolRegister";
 import SchoolReview from "./pages/Admin/SchoolManagement";
+import { useSelector } from "react-redux";
+import { selectUserRole } from "./features/user/userSelector";
 
 const App = () => {
+  const userRole = useSelector(selectUserRole);
+
   return (
     <Routes>
       <Route path="/" element={<Welcome />} />
@@ -33,7 +37,11 @@ const App = () => {
 
       <Route path="/admin" element={<Sidebar />}>
         {/* Index route - this will be the default when /admin is accessed */}
-        <Route index element={<CertificateUpload />} />
+        {userRole === "admin" ? (
+          <Route index element={<AllCertificatesList />} />
+        ) : (
+          <Route index element={<CertificateUpload />} />
+        )}
         <Route path="schools" element={<SchoolReview />} />
         <Route path="certificates" element={<CertificateUpload />} />
         <Route path="certificates/all" element={<AllCertificatesList />} />

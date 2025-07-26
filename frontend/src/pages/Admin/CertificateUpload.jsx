@@ -59,17 +59,17 @@ const CertificateUpload = () => {
   };
 
   // Check if user is admin
-  const isAdmin = userRole === "admin";
+  const isVerifier = userRole === "verifier";
 
   useEffect(() => {
-    // Auto-redirect non-admin users to home page
-    if (!isAdmin) {
+    // Auto-redirect non-verifier users to home page
+    if (!isVerifier) {
       navigate("/", { replace: true });
     }
-  }, [isAdmin, navigate]);
+  }, [isVerifier, navigate]);
 
-  // Show access denied if not admin
-  if (!isAdmin) {
+  // Show access denied if not verifier
+  if (!isVerifier) {
     return (
       <div className="bg-[var(--primary-color)] p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6 min-h-screen max-w-xl mx-auto">
         <div className="text-center py-12">

@@ -216,7 +216,7 @@ export const schoolRegister = async (req, res) => {
       username: schoolName,
       firstname: schoolName,
       lastname: city,
-      role: "admin",
+      role: "verifier",
       status: "Pending",
     });
 

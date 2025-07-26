@@ -14,15 +14,14 @@ import {
   LuSchool,
 } from "react-icons/lu";
 import Logo from "../../assets/Credify.png";
+import { useSelector } from "react-redux";
+import { selectUserRole } from "../../features/user/userSelector";
 
 // Internal SidebarLink component
 const SidebarLink = ({ Icon, text, to, onClick, isMobile }) => {
   const location = useLocation();
 
-  const isActive = !!matchPath(
-    { path: to, end: true },
-    location.pathname
-  );
+  const isActive = !!matchPath({ path: to, end: true }, location.pathname);
 
   const handleClick = () => {
     if (onClick) {
@@ -103,6 +102,7 @@ const SidebarLink = ({ Icon, text, to, onClick, isMobile }) => {
 const Sidebar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const userRole = useSelector(selectUserRole);
 
   // Check if we're on mobile
   useEffect(() => {
@@ -238,41 +238,48 @@ const Sidebar = () => {
           {/* Navigation Links */}
           <div className="flex-1 flex flex-col justify-between py-4">
             <nav className="space-y-2 px-4">
-              <SidebarLink
-                to="/admin/certificates"
-                Icon={LuFileText}
-                text="Certificates"
-                onClick={closeMobileMenu}
-                isMobile={isMobile}
-              />
-              <SidebarLink
-                to="/admin/certificates/all"
-                Icon={LuList}
-                text="Uploaded Certificates"
-                onClick={closeMobileMenu}
-                isMobile={isMobile}
-              />
-              <SidebarLink
-                to="/admin/certificates/revoked"
-                Icon={LuArchiveRestore}
-                text="Revoked Certificates"
-                onClick={closeMobileMenu}
-                isMobile={isMobile}
-              />
-              <SidebarLink
-                to="/admin/certificates/users"
-                Icon={LuUsers}
-                text="User Management"
-                onClick={closeMobileMenu}
-                isMobile={isMobile}
-              />
-              <SidebarLink
-                to="/admin/schools"
-                Icon={LuSchool}
-                text="Verify Schools"
-                onClick={closeMobileMenu}
-                isMobile={isMobile}
-              />
+              {userRole === "verifier" && (
+                <SidebarLink
+                  to="/admin/certificates"
+                  Icon={LuFileText}
+                  text="Certificates"
+                  onClick={closeMobileMenu}
+                  isMobile={isMobile}
+                />
+              )}
+
+              {userRole === "admin" && (
+                <>
+                  <SidebarLink
+                    to="/admin/certificates/all"
+                    Icon={LuList}
+                    text="Uploaded Certificates"
+                    onClick={closeMobileMenu}
+                    isMobile={isMobile}
+                  />
+                  <SidebarLink
+                    to="/admin/certificates/revoked"
+                    Icon={LuArchiveRestore}
+                    text="Revoked Certificates"
+                    onClick={closeMobileMenu}
+                    isMobile={isMobile}
+                  />
+                  <SidebarLink
+                    to="/admin/certificates/users"
+                    Icon={LuUsers}
+                    text="User Management"
+                    onClick={closeMobileMenu}
+                    isMobile={isMobile}
+                  />
+                  <SidebarLink
+                    to="/admin/schools"
+                    Icon={LuSchool}
+                    text="Verify Schools"
+                    onClick={closeMobileMenu}
+                    isMobile={isMobile}
+                  />
+                </>
+              )}
             </nav>
 
             {/* Footer Links */}
@@ -309,7 +316,9 @@ const Sidebar = () => {
         </header>
 
         {/* Page Content */}
-        <main className={`flex-grow overflow-auto p-4 ${isMobile ? "pr-8" : ""}`}>
+        <main
+          className={`flex-grow overflow-auto p-4 ${isMobile ? "pr-8" : ""}`}
+        >
           <Outlet />
         </main>
       </div>

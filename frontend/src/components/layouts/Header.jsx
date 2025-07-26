@@ -19,11 +19,13 @@ const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNavbarVisible, setIsNavbarVisible] = useState(true);
 
+  console.log(userRole);
+  console.log(user);
 
   const handleLogout = () => {
     dispatch(clearUser());
     setIsMobileMenuOpen(false);
-    navigate('/');
+    navigate("/");
   };
 
   const toggleMobileMenu = () => {
@@ -37,11 +39,11 @@ const Header = () => {
   const isActivePage = (path) => location.pathname === path;
 
   return (
-
-    <div className={`fixed w-full z-[100] bg-[var(--secondary-color)] px-4 sm:px-6 lg:px-8 py-3 lg:py-4 transition-transform duration-300 ease-in-out ${
-
-      isNavbarVisible ? 'translate-y-0' : '-translate-y-full'
-    }`}>
+    <div
+      className={`fixed w-full z-[100] bg-[var(--secondary-color)] px-4 sm:px-6 lg:px-8 py-3 lg:py-4 transition-transform duration-300 ease-in-out ${
+        isNavbarVisible ? "translate-y-0" : "-translate-y-full"
+      }`}
+    >
       {/* Desktop Layout */}
       <div className="hidden lg:grid grid-cols-3 max-w-[1350px] mx-auto items-center relative">
         {/* Logo positioned over content area - DESKTOP ONLY */}
@@ -60,26 +62,32 @@ const Header = () => {
         <div></div>
 
         {/* Center section - Navigation */}
-         <nav className="flex gap-6 xl:gap-8 items-center justify-center">
+        <nav className="flex gap-6 xl:gap-8 items-center justify-center">
           {[
-            { path: '/', label: 'Home' },
-            { path: '/about', label: 'About' },
-            ...(isLoggedIn ? [{ path: '/verification', label: 'Verification' }] : []),
-            ...(userRole === "admin" ? [{ path: '/admin', label: 'Admin' }] : [])
+            { path: "/", label: "Home" },
+            { path: "/about", label: "About" },
+            ...(isLoggedIn
+              ? [{ path: "/verification", label: "Verification" }]
+              : []),
+            ...(userRole === "admin" || userRole === "verifier"
+              ? [{ path: "/admin", label: userRole === "verifier" ? "Upload" : "Admin" }]
+              : []),
           ].map(({ path, label }) => (
             <Link
               key={path}
               to={path}
               className={`relative text-sm xl:text-base font-medium transition-all duration-300 group ${
                 isActivePage(path)
-                  ? 'text-[var(--tertiary-color)]'
-                  : 'text-white hover:text-[var(--tertiary-color)]'
+                  ? "text-[var(--tertiary-color)]"
+                  : "text-white hover:text-[var(--tertiary-color)]"
               }`}
             >
               {label}
-              <span className={`absolute -bottom-1 left-0 h-0.5 bg-[var(--tertiary-color)] transition-all duration-300 ${
-                isActivePage(path) ? 'w-full' : 'w-0 group-hover:w-full'
-              }`}></span>
+              <span
+                className={`absolute -bottom-1 left-0 h-0.5 bg-[var(--tertiary-color)] transition-all duration-300 ${
+                  isActivePage(path) ? "w-full" : "w-0 group-hover:w-full"
+                }`}
+              ></span>
             </Link>
           ))}
         </nav>
@@ -90,11 +98,14 @@ const Header = () => {
             <div className="flex items-center gap-3">
               {/* User Avatar/Greeting */}
               <div className="flex items-center gap-2">
-                <Link to="/profile" className="w-8 h-8 rounded-full bg-[var(--tertiary-color)] flex items-center justify-center text-[var(--secondary-color)] font-semibold text-sm hover:scale-105 transition-transform duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--tertiary-color)]">
-                  {user?.firstname?.charAt(0)?.toUpperCase() || 'U'}
+                <Link
+                  to="/profile"
+                  className="w-8 h-8 rounded-full bg-[var(--tertiary-color)] flex items-center justify-center text-[var(--secondary-color)] font-semibold text-sm hover:scale-105 transition-transform duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--tertiary-color)]"
+                >
+                  {user?.firstname?.charAt(0)?.toUpperCase() || "U"}
                 </Link>
                 <span className="text-white text-sm hidden xl:block">
-                  Hi, {user?.name?.split(' ')[0] || 'User'}
+                  Hi, {user?.name?.split(" ")[0] || "User"}
                 </span>
               </div>
 
@@ -134,8 +145,11 @@ const Header = () => {
         {/* Mobile User Info */}
         {isLoggedIn && (
           <div className="flex items-center gap-2">
-            <Link to="/profile" className="w-8 h-8 rounded-full bg-[var(--tertiary-color)] flex items-center justify-center text-[var(--secondary-color)] font-semibold text-sm hover:scale-105 transition-transform duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--tertiary-color)]">
-              {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+            <Link
+              to="/profile"
+              className="w-8 h-8 rounded-full bg-[var(--tertiary-color)] flex items-center justify-center text-[var(--secondary-color)] font-semibold text-sm hover:scale-105 transition-transform duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--tertiary-color)]"
+            >
+              {user?.name?.charAt(0)?.toUpperCase() || "U"}
             </Link>
           </div>
         )}
@@ -144,39 +158,55 @@ const Header = () => {
         <button
           onClick={toggleMobileMenu}
           className={`relative w-10 h-10 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--tertiary-color)] transition-all duration-300 ${
-            isMobileMenuOpen ? 'bg-[var(--tertiary-color)]/10' : 'hover:bg-white/10'
+            isMobileMenuOpen
+              ? "bg-[var(--tertiary-color)]/10"
+              : "hover:bg-white/10"
           }`}
           aria-label="Toggle menu"
         >
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="relative w-6 h-6">
-              <span className={`absolute block w-6 h-0.5 bg-current transform transition-all duration-300 ${
-                isMobileMenuOpen ? 'rotate-45 translate-y-0' : '-translate-y-2'
-              }`}></span>
-              <span className={`absolute block w-6 h-0.5 bg-current transform transition-all duration-300 ${
-                isMobileMenuOpen ? 'opacity-0' : 'opacity-100'
-              }`}></span>
-              <span className={`absolute block w-6 h-0.5 bg-current transform transition-all duration-300 ${
-                isMobileMenuOpen ? '-rotate-45 translate-y-0' : 'translate-y-2'
-              }`}></span>
+              <span
+                className={`absolute block w-6 h-0.5 bg-current transform transition-all duration-300 ${
+                  isMobileMenuOpen
+                    ? "rotate-45 translate-y-0"
+                    : "-translate-y-2"
+                }`}
+              ></span>
+              <span
+                className={`absolute block w-6 h-0.5 bg-current transform transition-all duration-300 ${
+                  isMobileMenuOpen ? "opacity-0" : "opacity-100"
+                }`}
+              ></span>
+              <span
+                className={`absolute block w-6 h-0.5 bg-current transform transition-all duration-300 ${
+                  isMobileMenuOpen
+                    ? "-rotate-45 translate-y-0"
+                    : "translate-y-2"
+                }`}
+              ></span>
             </div>
           </div>
         </button>
       </div>
 
       {/* Mobile Menu */}
-      <div className={`lg:hidden absolute top-full left-0 right-0 transition-all duration-300 z-[90] ${
-        isMobileMenuOpen 
-          ? 'opacity-100 translate-y-0 pointer-events-auto' 
-          : 'opacity-0 -translate-y-4 pointer-events-none'
-      }`}>
+      <div
+        className={`lg:hidden absolute top-full left-0 right-0 transition-all duration-300 z-[90] ${
+          isMobileMenuOpen
+            ? "opacity-100 translate-y-0 pointer-events-auto"
+            : "opacity-0 -translate-y-4 pointer-events-none"
+        }`}
+      >
         <div className="bg-[var(--secondary-color)]/95 backdrop-blur-md border border-white/10 rounded-b-xl mx-4 shadow-xl">
           <div className="px-6 py-6 space-y-2">
             {[
-              { path: '/', label: 'Home' },
-              { path: '/about', label: 'About' },
-              { path: '/verification', label: 'Verification' },
-              ...(userRole === "doctor" ? [{ path: '/admin', label: 'Admin' }] : [])
+              { path: "/", label: "Home" },
+              { path: "/about", label: "About" },
+              { path: "/verification", label: "Verification" },
+              ...(userRole === "doctor"
+                ? [{ path: "/admin", label: "Admin" }]
+                : []),
             ].map(({ path, label }, index) => (
               <Link
                 key={path}
@@ -184,8 +214,8 @@ const Header = () => {
                 onClick={closeMobileMenu}
                 className={`block relative overflow-hidden px-4 py-3 rounded-lg transition-all duration-300 group ${
                   isActivePage(path)
-                    ? 'text-[var(--tertiary-color)] bg-[var(--tertiary-color)]/10'
-                    : 'text-white hover:text-[var(--tertiary-color)] hover:bg-white/5'
+                    ? "text-[var(--tertiary-color)] bg-[var(--tertiary-color)]/10"
+                    : "text-white hover:text-[var(--tertiary-color)] hover:bg-white/5"
                 }`}
                 style={{ animationDelay: `${index * 50}ms` }}
               >
@@ -202,11 +232,13 @@ const Header = () => {
                 <div className="space-y-3">
                   <div className="flex items-center gap-3 px-4 py-2 text-white">
                     <div className="w-10 h-10 rounded-full bg-[var(--tertiary-color)] flex items-center justify-center text-[var(--secondary-color)] font-semibold">
-                      {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+                      {user?.name?.charAt(0)?.toUpperCase() || "U"}
                     </div>
                     <div>
-                      <p className="font-medium">{user?.name || 'User'}</p>
-                      <p className="text-sm text-white/70 capitalize">{userRole}</p>
+                      <p className="font-medium">{user?.name || "User"}</p>
+                      <p className="text-sm text-white/70 capitalize">
+                        {userRole}
+                      </p>
                     </div>
                   </div>
                   <button

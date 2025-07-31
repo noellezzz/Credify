@@ -307,6 +307,16 @@ const Login = () => {
                 Sign Up
               </Link>
             </div>
+
+            <div className="text-center text-sm lg:text-base transition-all duration-300 hover:scale-105">
+              Log in as organization? &nbsp;
+              <Link
+                to="/organization/login"
+                className="text-[var(--secondary-color)] font-bold hover:underline transition-all duration-200 hover:text-opacity-80 focus:outline-none focus:ring-2 focus:ring-[var(--secondary-color)] focus:ring-opacity-50 rounded px-1"
+              >
+                Login
+              </Link>
+            </div>
           </form>
         </div>
       </div>

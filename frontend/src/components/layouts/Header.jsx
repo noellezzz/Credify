@@ -65,6 +65,7 @@ const Header = () => {
             { path: '/', label: 'Home' },
             { path: '/about', label: 'About' },
             ...(isLoggedIn ? [{ path: '/verification', label: 'Verification' }] : []),
+            ...(isLoggedIn ? [{ path: '/events', label: 'Events' }] : []),
             ...(userRole === "admin" ? [{ path: '/admin', label: 'Admin' }] : [])
           ].map(({ path, label }) => (
             <Link

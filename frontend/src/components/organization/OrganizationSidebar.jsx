@@ -18,7 +18,9 @@ import {
   FiCheckCircle,
   FiClock,
   FiShield,
-  FiFileText
+  FiFileText,
+  FiUpload,
+  FiAward
 } from 'react-icons/fi';
 
 const OrganizationSidebar = ({ isOpen, onToggle }) => {
@@ -68,6 +70,13 @@ const OrganizationSidebar = ({ isOpen, onToggle }) => {
       icon: FiFileText,
       path: '/organization/verifications',
       description: 'Manage verification requests'
+    },
+    {
+      id: 'certificates',
+      label: 'Certificates',
+      icon: FiAward,
+      path: '/organization/certificates',
+      description: 'Upload certificates'
     },
     // {
     //   id: 'settings',
@@ -225,7 +234,7 @@ const OrganizationSidebar = ({ isOpen, onToggle }) => {
             {organizationData.verification_status !== 'verified' && (
               <div className="mt-3 p-2 bg-blue-50 border border-blue-200 rounded-lg">
                 <p className="text-xs text-blue-800">
-                  Complete verification to publish events
+                  Complete verification to publish events and upload certificates
                 </p>
                 <Link 
                   to="/organization/profile"
@@ -242,7 +251,9 @@ const OrganizationSidebar = ({ isOpen, onToggle }) => {
         <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
           {navigationItems.map((item) => {
             const Icon = item.icon;
-            const isActive = location.pathname === item.path;
+            const isActive = location.pathname === item.path || 
+                           (item.path !== '/organization/dashboard' && 
+                            location.pathname.startsWith(item.path));
             
             return (
               <Link

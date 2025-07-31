@@ -18,7 +18,7 @@ import SchoolRegister from "./pages/SchoolRegister";
 import SchoolReview from "./pages/Admin/SchoolManagement";
 import SchoolDashboard from "./pages/School/SchoolDashboard";
 
-// New Organization imports
+// Organization imports
 import OrganizationRegister from "./pages/Organization/OrganizationRegister";
 import OrganizationLogin from "./pages/Organization/OrganizationLogin";
 import OrganizationDashboard from "./pages/Organization/OrganizationDashboard";
@@ -29,6 +29,7 @@ import PublicEvents from "./pages/PublicEvents";
 import EventDetails from "./pages/Events/EventDetails";
 import PublicOrganizations from "./pages/PublicOrganizations";
 import PublicOrganizationProfile from "./pages/PublicOrganizationProfile";
+import OrganizationCertificateUpload from "./pages/Organization/OrganizationCertificateUpload";
 
 const App = () => {
   return (
@@ -41,27 +42,30 @@ const App = () => {
       {/* Authentication Routes */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      
-      {/* Registration Routes */}
       <Route path="/register/as-school" element={<SchoolRegister />} />
       <Route path="/register/as-organization" element={<OrganizationRegister />} />
 
-      {/* Organization Authentication Routes */}
+      {/* Organization Auth */}
       <Route path="/organization/login" element={<OrganizationLogin />} />
       <Route path="/organization/register" element={<OrganizationRegister />} />
       <Route path="/organization/verification-pending" element={<OrganizationVerificationPending />} />
 
-      {/* School Dashboard Routes (Legacy) */}
+      {/* School Dashboard */}
       <Route path="/school/*" element={<SchoolDashboard />} />
 
-      {/* Organization Dashboard Routes */}
+      {/* Organization Dashboard & Protected Routes */}
       <Route path="/organization/*" element={
         <OrganizationProtectedRoute>
           <OrganizationDashboard />
         </OrganizationProtectedRoute>
       } />
+      <Route path="/organization/certificates" element={
+        <OrganizationProtectedRoute>
+          <OrganizationCertificateUpload />
+        </OrganizationProtectedRoute>
+      } />
 
-      {/* Public Organization/Events Routes */}
+      {/* Public Organization/Events */}
       <Route path="/events" element={<PublicEvents />} />
       <Route path="/events/:id" element={<EventDetails />} />
       <Route path="/organizations" element={<PublicOrganizations />} />
